@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت — آکادمی اثنی‌عشری</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="tailwind-config-fa.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  .admin-page { display: flex; min-height: 100vh; }
+  
+  /* Login screen */
+  .admin-login-overlay {
+    position: fixed; inset: 0; z-index: 10000;
+    background: linear-gradient(135deg, #101B33 0%, #1a2d4d 50%, #101B33 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .admin-login-overlay.hidden { display: none; }
+  .admin-login-box {
+    background: white; border-radius: 20px; padding: 2.5rem; width: 92%; max-width: 400px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    animation: modalSlideUp 0.4s cubic-bezier(.2,.8,.2,1);
+  }
+  @keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .admin-login-box h2 { font-size: 1.3rem; font-weight: 700; color: #1f2937; text-align: center; margin-bottom: 0.5rem; }
+  .admin-login-box p { font-size: 0.85rem; color: #6b7280; text-align: center; margin-bottom: 1.5rem; }
+  .admin-login-box label { font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; display: block; }
+  .admin-login-box input {
+    width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 12px;
+    font-size: 0.95rem; font-family: 'Vazirmatn', sans-serif; direction: rtl;
+    transition: border-color 0.2s ease; margin-bottom: 1rem;
+  }
+  .admin-login-box input:focus { outline: none; border-color: #A9823D; box-shadow: 0 0 0 3px rgba(169,130,61,0.1); }
+  .admin-login-btn {
+    width: 100%; padding: 0.85rem; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #101B33, #1a2d4d); color: white;
+    font-size: 1rem; font-weight: 600; font-family: 'Vazirmatn', sans-serif; cursor: pointer;
+    transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(16,27,51,0.3);
+  }
+  .admin-login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,27,51,0.4); }
+  .admin-login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .admin-login-error {
+    background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;
+    padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.85rem;
+    display: none; text-align: center; margin-bottom: 1rem;
+  }
+  .admin-login-error.show { display: block; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px; background: linear-gradient(160deg, #101B33, #182743);
+    color: white; flex-shrink: 0; display: flex; flex-direction: column;
+    box-shadow: 12px 0 40px rgba(16,27,51,0.12); position: sticky; top: 0; height: 100vh;
+  }
+  .sidebar-header { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+  .sidebar-nav a {
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem;
+    border-radius: 10px; color: rgba(255,255,255,0.7); font-size: 0.9rem; transition: all 0.2s ease;
+    margin-bottom: 0.25rem; cursor: pointer; text-decoration: none;
+  }
+  .sidebar-nav a:hover { background: rgba(255,255,255,0.08); color: white; }
+  .sidebar-nav a.active { background: rgba(255,255,255,0.12); color: white; font-weight: 600; }
+  .sidebar-nav a i { width: 20px; text-align: center; font-size: 0.95rem; }
+  .sidebar-badge {
+    margin-right: auto; background: rgba(169,130,61,0.3); color: #A9823D;
+    font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600;
+  }
+  .sidebar-footer {
+    padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.75rem; color: rgba(255,255,255,0.4);
+  }
+
+  /* Main content */
+  .admin-main { flex: 1; padding: 2rem 2.5rem; max-width: 1200px; overflow-y: auto; }
+  
+  /* Section header */
+  .section-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .section-header h1 { font-size: 1.5rem; font-weight: 700; color: #101B33; }
+  .section-header .subtitle { font-size: 0.85rem; color: #47536B; margin-top: 0.25rem; }
+
+  /* Stats cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .stat-card {
+    background: white; border-radius: 16px; padding: 1.25rem; border: 1px solid rgba(16,27,51,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(16,27,51,0.08); }
+  .stat-card .stat-icon {
+    width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+    font-size: 1rem; margin-bottom: 0.75rem;
+  }
+  .stat-card .stat-label { font-size: 0.8rem; color: #47536B; margin-bottom: 0.35rem; }
+  .stat-card .stat-value { font-size: 1.6rem; font-weight: 700; color: #101B33; }
+
+  /* Tables */
+  .data-table {
+    width: 100%; background: white; border-radius: 16px; border: 1px solid rgba(16,27,51,0.08);
+    overflow: hidden;
+  }
+  .data-table table { width: 100%; border-collapse: collapse; }
+  .data-table thead { background: #f8f9fb; }
+  .data-table th {
+    padding: 0.85rem 1rem; font-size: 0.8rem; font-weight: 600; color: #47536B;
+    text-align: right; border-bottom: 1px solid rgba(16,27,51,0.08);
+  }
+  .data-table td {
+    padding: 0.85rem 1rem; font-size: 0.9rem; color: #101B33;
+    border-bottom: 1px solid rgba(16,27,51,0.05);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: #f8f9fb; }
+
+  /* Status badges */
+  .badge {
+    display: inline-flex; align-items: center; padding: 0.25rem 0.75rem;
+    border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+  }
+  .badge-success { background: #dcfce7; color: #166534; }
+  .badge-warning { background: #fef3c7; color: #92400e; }
+  .badge-danger { background: #fecaca; color: #991b1b; }
+  .badge-info { background: #dbeafe; color: #1e40af; }
+  .badge-neutral { background: #f3f4f6; color: #374151; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;
+    border-radius: 10px; font-size: 0.85rem; font-weight: 500; font-family: 'Vazirmatn', sans-serif;
+    cursor: pointer; transition: all 0.2s ease; border: none;
+  }
+  .btn-primary { background: #101B33; color: white; }
+  .btn-primary:hover { background: #1a2d4d; transform: translateY(-1px); }
+  .btn-success { background: #059669; color: white; }
+  .btn-success:hover { background: #047857; }
+  .btn-danger { background: #dc2626; color: white; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-outline { background: white; border: 1px solid rgba(16,27,51,0.2); color: #47536B; }
+  .btn-outline:hover { background: #f8f9fb; }
+  .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Search & Filters */
+  .filter-bar {
+    display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;
+  }
+  .filter-bar input, .filter-bar select {
+    padding: 0.6rem 1rem; border: 2px solid rgba(16,27,51,0.1); border-radius: 10px;
+    font-size: 0.9rem; font-family: 'Vazirmatn', sans-serif; background: white;
+  }
+  .filter-bar input:focus, .filter-bar select:focus { outline: none; border-color: #A9823D; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px); z-index: 9000; align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: white; border-radius: 20px; padding: 2rem; width: 92%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+    animation: modalSlideUp 0.35s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal-box h3 { font-size: 1.15rem; font-weight: 700; color: #1f2937; margin-bottom: 1.25rem; }
+  .modal-box label { font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 0.3rem; display: block; }
+  .modal-box input, .modal-box select, .modal-box textarea {
+    width: 100%; padding: 0.65rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px;
+    font-size: 0.9rem; font-family: 'Vazirmatn', sans-serif; margin-bottom: 1rem; direction: rtl;
+  }
+  .modal-box input:focus, .modal-box select:focus, .modal-box textarea:focus {
+    outline: none; border-color: #A9823D; box-shadow: 0 0 0 3px rgba(169,130,61,0.1);
+  }
+  .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-start; margin-top: 0.5rem; }
+
+  /* Toast notifications */
+  .toast {
+    position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%);
+    padding: 0.85rem 1.5rem; border-radius: 12px; font-size: 0.9rem; font-weight: 500;
+    z-index: 99999; animation: toastIn 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+  .toast-success { background: #059669; color: white; }
+  .toast-error { background: #dc2626; color: white; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+  /* Report cards */
+  .report-card {
+    background: white; border-radius: 16px; padding: 1.5rem;
+    border: 1px solid rgba(16,27,51,0.08); margin-bottom: 1rem;
+  }
+  .report-card h3 { font-size: 1.1rem; font-weight: 700; color: #101B33; margin-bottom: 1rem; }
+  .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+  .report-item { text-align: center; padding: 1rem; border-radius: 12px; background: #f8f9fb; }
+  .report-item .r-value { font-size: 1.5rem; font-weight: 700; color: #101B33; }
+  .report-item .r-label { font-size: 0.8rem; color: #47536B; margin-top: 0.25rem; }
+
+  /* Pagination */
+  .pagination { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1.5rem; }
+  .pagination button {
+    padding: 0.5rem 1rem; border: 1px solid rgba(16,27,51,0.15); border-radius: 8px;
+    background: white; cursor: pointer; font-family: 'Vazirmatn', sans-serif; font-size: 0.85rem;
+  }
+  .pagination button.active { background: #101B33; color: white; border-color: #101B33; }
+  .pagination button:hover:not(.active) { background: #f3f4f6; }
+
+  /* Loading spinner */
+  .loading { text-align: center; padding: 3rem; color: #47536B; }
+  .loading i { font-size: 1.5rem; animation: spin 1s linear infinite; margin-bottom: 0.5rem; display: block; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 3rem; color: #9ca3af; }
+  .empty-state i { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+
+  /* Section visibility */
+  .admin-section { display: none; }
+  .admin-section.active { display: block; }
+
+  /* Tabs */
+  .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid rgba(16,27,51,0.08); padding-bottom: 0; }
+  .tab-btn {
+    padding: 0.7rem 1.25rem; border: none; background: none; cursor: pointer;
+    font-family: 'Vazirmatn', sans-serif; font-size: 0.9rem; font-weight: 500; color: #47536B;
+    border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+  }
+  .tab-btn:hover { color: #101B33; }
+  .tab-btn.active { color: #A9823D; border-bottom-color: #A9823D; font-weight: 600; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .sidebar { position: fixed; z-index: 8000; transform: translateX(-100%); transition: transform 0.3s; width: 260px; }
+    .sidebar.open { transform: translateX(0); }
+    .admin-main { padding: 1rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .data-table { overflow-x: auto; }
+  }
+
+  /* Format currency */
+  .currency { direction: ltr; display: inline-block; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body class="admin-page-body bg-fog text-ink font-sans antialiased">
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div class="admin-login-overlay" id="loginOverlay">
+  <div class="admin-login-box">
+    <div style="text-align:center; margin-bottom:1.5rem;">
+      <div style="width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,#101B33,#1a2d4d);color:#A9823D;font-size:1.5rem;display:grid;place-items:center;margin:0 auto 1rem;box-shadow:0 8px 24px rgba(16,27,51,0.2);">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h2>ورود مدیریت</h2>
+      <p>نام کاربری و رمز عبور خود را وارد کنید</p>
+    </div>
+    <div id="loginError" class="admin-login-error"></div>
+    <form id="loginForm">
+      <label>نام کاربری</label>
+      <input type="text" id="loginUsername" placeholder="admin" autocomplete="username" required>
+      <label>رمز عبور</label>
+      <input type="password" id="loginPassword" placeholder="••••••" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="admin-login-btn">
+        <i class="fa-solid fa-right-to-bracket"></i> ورود به پنل مدیریت
+      </button>
+    </form>
+    <p style="text-align:center; margin-top:1.25rem; font-size:0.75rem; color:#9ca3af;">
+      <i class="fa-solid fa-lock"></i> ارتباط رمزنگاری شده و امن
+    </p>
+  </div>
+</div>
+
+<!-- ============ MAIN LAYOUT ============ -->
+<div class="admin-page" id="adminLayout" style="display:none;">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <p style="font-weight:700; font-size:1.05rem;">پنل مدیریت</p>
+      <p id="adminNameDisplay" style="font-size:0.75rem; color:rgba(255,255,255,0.5); margin-top:0.35rem;">مدیر سیستم</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="active" onclick="showSection('dashboard')">
+        <i class="fa-solid fa-chart-pie"></i> نمای کلی
+        <span class="sidebar-badge" id="notifBadge" style="background:rgba(239,68,68,.3);color:#ef4444;display:none">0</span>
+      </a>
+      <a onclick="showSection('users')">
+        <i class="fa-solid fa-users"></i> کاربران
+        <span class="sidebar-badge" id="userCountBadge">0</span>
+      </a>
+      <a onclick="showSection('courses')">
+        <i class="fa-solid fa-book"></i> دوره‌ها
+      </a>
+      <a onclick="showSection('transactions')">
+        <i class="fa-solid fa-receipt"></i> تراکنش‌ها
+        <span class="sidebar-badge" id="pendingBadge">0</span>
+      </a>
+      <a onclick="showSection('tickets')">
+        <i class="fa-solid fa-headset"></i> تیکت‌ها
+        <span class="sidebar-badge" id="ticketBadge">0</span>
+      </a>
+      <a onclick="showSection('reports')">
+        <i class="fa-solid fa-chart-bar"></i> گزارشات
+      </a>
+      <a onclick="showSection('audit')">
+        <i class="fa-solid fa-clock-rotate-left"></i> لاگ فعالیت
+      </a>
+      <a onclick="showSection('otps')">
+        <i class="fa-solid fa-key"></i> OTP ها
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span id="adminRoleDisplay">super_admin</span>
+        <button onclick="adminLogout()" style="background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:0.85rem;">
+          <i class="fa-solid fa-right-from-bracket"></i> خروج
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    
+    <!-- Mobile menu toggle -->
+    <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none; margin-bottom:1rem;" id="menuToggle">
+      <i class="fa-solid fa-bars"></i> منو
+    </button>
+
+    <!-- ======== DASHBOARD ======== -->
+    <div class="admin-section active" id="section-dashboard">
+      <div class="section-header">
+        <div>
+          <h1>نمای کلی</h1>
+          <p class="subtitle">خلاصه وضعیت سیستم — <span id="dashDate"></span></p>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="loadDashboard()">
+          <i class="fa-solid fa-rotate"></i> بروزرسانی
+        </button>
+      </div>
+
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card" style="cursor:pointer" onclick="toggleStatDetail('users')">
+          <div class="stat-icon" style="background:#dbeafe; color:#2563eb;"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-label">کل کاربران</div>
+          <div class="stat-value" id="stat-total-users">—</div>
+          <div style="font-size:.75rem;color:#9ca3af;margin-top:.25rem" id="stat-detail-users"></div>
+        </div>
+        <div class="stat-card" style="cursor:pointer" onclick="toggleStatDetail('activeUsers')">
+          <div class="stat-icon" style="background:#dcfce7; color:#16a34a;"><i class="fa-solid fa-user-check"></i></div>
+          <div class="stat-label">کاربران فعال</div>
+          <div class="stat-value" id="stat-active-users">—</div>
+          <div style="font-size:.75rem;color:#9ca3af;margin-top:.25rem" id="stat-detail-activeUsers"></div>
+        </div>
+        <div class="stat-card" style="cursor:pointer" onclick="toggleStatDetail('courses')">
+          <div class="stat-icon" style="background:#fef3c7; color:#d97706;"><i class="fa-solid fa-book"></i></div>
+          <div class="stat-label">دوره‌ها</div>
+          <div class="stat-value" id="stat-total-courses">—</div>
+          <div style="font-size:.75rem;color:#9ca3af;margin-top:.25rem" id="stat-detail-courses"></div>
+        </div>
+        <div class="stat-card" style="cursor:pointer" onclick="toggleStatDetail('pending')">
+          <div class="stat-icon" style="background:#fce7f3; color:#db2777;"><i class="fa-solid fa-hourglass-half"></i></div>
+          <div class="stat-label">تراکنش‌های در انتظار</div>
+          <div class="stat-value" id="stat-pending-txns">—</div>
+          <div style="font-size:.75rem;color:#9ca3af;margin-top:.25rem" id="stat-detail-pending"></div>
+        </div>
+        <div class="stat-card" style="cursor:pointer" onclick="toggleStatDetail('revenueMonth')">
+          <div class="stat-icon" style="background:#d1fae5; color:#059669;"><i class="fa-solid fa-money-bill-wave"></i></div>
+          <div class="stat-label">درآمد ماه (تومان)</div>
+          <div class="stat-value currency" id="stat-revenue-month">—</div>
+          <div style="font-size:.75rem;color:#9ca3af;margin-top:.25rem" id="stat-detail-revenueMonth"></div>
+        </div>
+        <div class="stat-card" style="cursor:pointer" onclick="toggleStatDetail('revenueYear')">
+          <div class="stat-icon" style="background:#e0e7ff; color:#4f46e5;"><i class="fa-solid fa-coins"></i></div>
+          <div class="stat-label">درآمد سال (تومان)</div>
+          <div class="stat-value currency" id="stat-revenue-year">—</div>
+          <div style="font-size:.75rem;color:#9ca3af;margin-top:.25rem" id="stat-detail-revenueYear"></div>
+        </div>
+      </div>
+      <!-- Expandable detail panel -->
+      <div id="statDetailPanel" style="display:none;background:white;border-radius:16px;border:1px solid rgba(16,27,51,.08);padding:1.25rem;margin-bottom:1.5rem;animation:modalSlideUp .3s ease">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 style="font-size:1rem;font-weight:600;color:#101B33" id="statDetailTitle"></h3>
+          <button onclick="document.getElementById('statDetailPanel').style.display='none'" style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:1rem"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="statDetailContent"></div>
+      </div>
+    </div>
+
+    <!-- ======== USERS ======== -->
+    <div class="admin-section" id="section-users">
+      <div class="section-header">
+        <div>
+          <h1>مدیریت کاربران</h1>
+          <p class="subtitle">مشاهده، غیرفعال‌سازی و مدیریت کاربران ثبت‌نام شده</p>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="openMessageComposer()" style="margin-bottom:1rem">
+        <i class="fa-solid fa-paper-plane"></i> پیام جدید به کاربر
+      </button>
+      <div class="filter-bar">
+        <input type="text" id="userSearch" placeholder="جستجو (نام، شماره، ایمیل)..." style="min-width:250px;">
+        <select id="userStatusFilter">
+          <option value="">همه وضعیت‌ها</option>
+          <option value="active">فعال</option>
+          <option value="disabled">غیرفعال</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="loadUsers()">
+          <i class="fa-solid fa-magnifying-glass"></i> جستجو
+        </button>
+      </div>
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px;">#</th>
+              <th>نام</th>
+              <th>شماره همراه</th>
+              <th>ایمیل</th>
+              <th>وضعیت</th>
+              <th>تاریخ ثبت‌نام</th>
+              <th>آخرین ورود</th>
+              <th style="width:140px;">اقدام</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="8" class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="usersPagination"></div>
+    </div>
+
+    <!-- ======== COURSES ======== -->
+    <div class="admin-section" id="section-courses">
+      <div class="section-header">
+        <div>
+          <h1>مدیریت دوره‌ها</h1>
+          <p class="subtitle">ایجاد، ویرایش و حذف دوره‌های آموزشی</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCourseModal()">
+          <i class="fa-solid fa-plus"></i> دوره جدید
+        </button>
+      </div>
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px;">#</th>
+              <th>کد</th>
+              <th>عنوان</th>
+              <th>سطح</th>
+              <th>قیمت (تومان)</th>
+              <th>ثبت‌نام‌ها</th>
+              <th>وضعیت</th>
+              <th style="width:160px;">اقدام</th>
+            </tr>
+          </thead>
+          <tbody id="coursesTableBody">
+            <tr><td colspan="8" class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ======== TRANSACTIONS ======== -->
+    <div class="admin-section" id="section-transactions">
+      <div class="section-header">
+        <div>
+          <h1>مدیریت تراکنش‌ها</h1>
+          <p class="subtitle">بررسی و تأیید/رد فیش‌های پرداخت</p>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <select id="txnStatusFilter">
+          <option value="">همه</option>
+          <option value="pending">در انتظار</option>
+          <option value="verified">تأیید شده</option>
+          <option value="rejected">رد شده</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="loadTransactions()">
+          <i class="fa-solid fa-filter"></i> فیلتر
+        </button>
+      </div>
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px;">#</th>
+              <th>کاربر</th>
+              <th>دوره</th>
+              <th>مبلغ</th>
+              <th>شماره فیش</th>
+              <th>وضعیت</th>
+              <th>تاریخ</th>
+              <th style="width:180px;">اقدام</th>
+            </tr>
+          </thead>
+          <tbody id="txnsTableBody">
+            <tr><td colspan="8" class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="txnsPagination"></div>
+    </div>
+
+    <!-- ======== REPORTS ======== -->
+    <div class="admin-section" id="section-reports">
+      <div class="section-header">
+        <div>
+          <h1>گزارشات</h1>
+          <p class="subtitle">گزارش‌های روزانه، ماهانه و سالانه</p>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <button class="btn btn-outline btn-sm" onclick="openExpenseModal()" style="margin-right:auto"><i class="fa-solid fa-plus"></i> ثبت هزینه</button>
+        <button class="tab-btn active" onclick="switchReportTab('daily')" id="tab-daily">روزانه</button>
+        <button class="tab-btn" onclick="switchReportTab('monthly')" id="tab-monthly">ماهانه</button>
+        <button class="tab-btn" onclick="switchReportTab('yearly')" id="tab-yearly">سالانه</button>
+      </div>
+
+      <!-- Daily Report -->
+      <div id="report-daily" class="report-panel">
+        <div class="filter-bar">
+          <label style="font-size:0.9rem; font-weight:500;">تاریخ:</label>
+          <input type="date" id="dailyDate" style="direction:ltr;">
+          <button class="btn btn-primary btn-sm" onclick="loadReport('daily')">
+            <i class="fa-solid fa-chart-column"></i> نمایش گزارش
+          </button>
+        </div>
+        <div id="dailyReportContent">
+          <div class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</div>
+        </div>
+      </div>
+
+      <!-- Monthly Report -->
+      <div id="report-monthly" class="report-panel" style="display:none;">
+        <div class="filter-bar">
+          <label style="font-size:0.9rem; font-weight:500;">ماه:</label>
+          <input type="month" id="monthlyDate" style="direction:ltr;">
+          <button class="btn btn-primary btn-sm" onclick="loadReport('monthly')">
+            <i class="fa-solid fa-chart-column"></i> نمایش گزارش
+          </button>
+        </div>
+        <div id="monthlyReportContent">
+          <div class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</div>
+        </div>
+      </div>
+
+      <!-- Yearly Report -->
+      <div id="report-yearly" class="report-panel" style="display:none;">
+        <div class="filter-bar">
+          <label style="font-size:0.9rem; font-weight:500;">سال:</label>
+          <select id="yearlyDate" style="direction:ltr; min-width:100px;">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="loadReport('yearly')">
+            <i class="fa-solid fa-chart-column"></i> نمایش گزارش
+          </button>
+        </div>
+        <div id="yearlyReportContent">
+          <div class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== TICKETS ======== -->
+    <div class="admin-section" id="section-tickets">
+      <div class="section-header">
+        <div>
+          <h1>تیکت‌های پشتیبانی</h1>
+          <p class="subtitle">پاسخگویی به درخواست‌های کاربران</p>
+        </div>
+        <div class="filter-bar" style="margin-bottom:0">
+          <select id="ticketStatusFilter" onchange="loadAdminTickets()">
+            <option value="">همه</option>
+            <option value="open">باز</option>
+            <option value="answered">پاسخ داده شده</option>
+            <option value="closed">بسته شده</option>
+          </select>
+        </div>
+      </div>
+      <div id="adminTicketsList" class="space-y-3">
+        <div class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</div>
+      </div>
+    </div>
+
+    <!-- ======== OTP MANAGEMENT ======== -->
+    <div class="admin-section" id="section-otps">
+      <div class="section-header">
+        <div>
+          <h1>مدیریت OTP ها</h1>
+          <p class="subtitle">حذف کدهای تأیید برای سبک نگه داشتن دیتابیس</p>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button class="btn btn-danger btn-sm" onclick="deleteSelectedOtps()">حذف انتخاب‌شده‌ها</button>
+          <button class="btn btn-danger btn-sm" onclick="clearOtps()">حذف همه OTP ها</button>
+        </div>
+      </div>
+      <div class="data-table">
+        <table>
+          <thead><tr>
+            <th><input type="checkbox" onchange="toggleAllOtps(this.checked)"></th>
+            <th>#</th><th>شماره تلفن</th><th>کد OTP</th><th>وضعیت</th><th>تاریخ ایجاد</th><th>انقضا</th><th>اقدام</th>
+          </tr></thead>
+          <tbody id="otpsTableBody"><tr><td colspan="7" class="loading">در حال بارگذاری...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="otpsPagination"></div>
+    </div>
+
+    <!-- ======== AUDIT LOG ======== -->
+    <div class="admin-section" id="section-audit">
+      <div class="section-header">
+        <div>
+          <h1>لاگ فعالیت</h1>
+          <p class="subtitle">تمامی اقدامات ادمین‌ها در سیستم</p>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn btn-danger btn-sm" onclick="deleteSelectedAuditLogs()">حذف انتخاب‌شده‌ها</button>
+        <button class="btn btn-danger btn-sm" onclick="clearAuditLog()">
+          <i class="fa-solid fa-trash-can"></i> پاک کردن تمام لاگ‌ها
+        </button>
+        </div>
+      </div>
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:60px;">#</th>
+              <th>عملیات</th>
+              <th>نوع هدف</th>
+              <th>شناسه هدف</th>
+              <th>جزئیات</th>
+              <th>آدرس IP</th>
+              <th>تاریخ</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <tr><td colspan="7" class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="auditPagination"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============ COURSE MODAL ============ -->
+<div class="modal-overlay" id="courseModal">
+  <div class="modal-box">
+    <h3 id="courseModalTitle">افزودن دوره جدید</h3>
+    <input type="hidden" id="courseEditId">
+    <label>کد دوره</label>
+    <input type="text" id="courseCode" placeholder="مثال: ACC-201" maxlength="20">
+    <label>عنوان دوره</label>
+    <input type="text" id="courseTitle" placeholder="عنوان کامل دوره">
+    <label>توضیحات</label>
+    <textarea id="courseDesc" rows="3" placeholder="توضیحات دوره..."></textarea>
+    <label>سطح</label>
+    <select id="courseLevel">
+      <option value="مقدماتی">مقدماتی</option>
+      <option value="متوسط">متوسط</option>
+      <option value="پیشرفته">پیشرفته</option>
+    </select>
+    <label>قیمت (تومان)</label>
+    <input type="number" id="coursePrice" placeholder="0" min="0">
+    <label>آدرس تصویر (URL)</label>
+    <input type="text" id="courseImage" placeholder="https://...">
+    <label>شناسه SpotPlayer</label>
+    <input type="text" id="courseSpotId" placeholder="اختیاری">
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="courseSaveBtn" onclick="saveCourse()">
+        <i class="fa-solid fa-check"></i> ذخیره
+      </button>
+      <button class="btn btn-outline" onclick="closeCourseModal()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TRANSACTION VERIFY MODAL ============ -->
+<div class="modal-overlay" id="txnModal">
+  <div class="modal-box">
+    <h3>بررسی تراکنش</h3>
+    <div id="txnModalDetails" style="margin-bottom:1rem; font-size:0.9rem; color:#374151; line-height:2;"></div>
+    <label>کلید لایسنس اسپات‌پلیر</label>
+    <input type="text" id="txnLicenseKey" placeholder="کلید لایسنس SpotPlayer را وارد کنید" style="width:100%;padding:0.65rem 1rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:'IBM Plex Mono',monospace;direction:ltr;text-align:left;margin-bottom:0.75rem;">
+    <p style="font-size:0.75rem; color:#6b7280; margin-bottom:0.75rem;"><i class="fa-solid fa-info-circle"></i> این کلید پس از تأیید به کاربر نمایش داده می‌شود تا در اسپات‌پلیر استفاده کند.</p>
+    <label>یادداشت ادمین</label>
+    <textarea id="txnNote" rows="2" placeholder="اختیاری..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-success" onclick="verifyTransaction('verify')">
+        <i class="fa-solid fa-check"></i> تأیید + فعال‌سازی لایسنس
+      </button>
+      <button class="btn btn-danger" onclick="verifyTransaction('reject')">
+        <i class="fa-solid fa-xmark"></i> رد
+      </button>
+      <button class="btn btn-outline" onclick="closeTxnModal()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDIT USER MODAL ============ -->
+<div class="modal-overlay" id="editUserModal">
+  <div class="modal-box">
+    <h3>ویرایش اطلاعات کاربر</h3>
+    <input type="hidden" id="editUserId">
+    <label>نام</label>
+    <input type="text" id="editUserName" placeholder="نام کاربر">
+    <label>شماره همراه</label>
+    <input type="text" id="editUserPhone" placeholder="09123456789" style="direction:ltr;text-align:left">
+    <label>ایمیل</label>
+    <input type="email" id="editUserEmail" placeholder="email@example.com" style="direction:ltr;text-align:left">
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveEditUser()"><i class="fa-solid fa-check"></i> ذخیره</button>
+      <button class="btn btn-outline" onclick="document.getElementById('editUserModal').classList.remove('show')">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SEND MESSAGE MODAL ============ -->
+<div class="modal-overlay" id="sendMessageModal">
+  <div class="modal-box">
+    <h3>ارسال پیام به کاربر</h3>
+    <input type="hidden" id="msgUserId">
+    <label>انتخاب کاربر</label>
+    <select id="msgUserSelect" onchange="document.getElementById('msgUserId').value=this.value" style="width:100%;padding:.75rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-family:'Vazirmatn',sans-serif;margin-bottom:1rem;direction:rtl">
+      <option value="">در حال بارگذاری کاربران...</option>
+    </select>
+    <div id="msgUserInfo" style="background:#f8f9fb;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#47536B"></div>
+    <label>موضوع</label>
+    <input type="text" id="msgSubject" placeholder="موضوع پیام">
+    <label>متن پیام</label>
+    <textarea id="msgBody" rows="4" placeholder="متن پیام خود را بنویسید..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="sendUserMessage()"><i class="fa-solid fa-paper-plane"></i> ارسال</button>
+      <button class="btn btn-outline" onclick="document.getElementById('sendMessageModal').classList.remove('show')">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TICKET DETAIL MODAL ============ -->
+<div class="modal-overlay" id="expenseModal">
+  <div class="modal-box">
+    <h3>ثبت هزینه</h3>
+    <label>عنوان هزینه</label>
+    <input type="text" id="expenseTitle" placeholder="مثلاً تبلیغات یا پشتیبانی فنی">
+    <label>دسته‌بندی</label>
+    <input type="text" id="expenseCategory" placeholder="تبلیغات، حقوق، سرور...">
+    <label>مبلغ (تومان)</label>
+    <input type="number" id="expenseAmount" min="1" placeholder="مبلغ">
+    <label>توضیحات</label>
+    <textarea id="expenseNote" rows="3" placeholder="توضیح اختیاری"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveExpense()"><i class="fa-solid fa-check"></i> ذخیره هزینه</button>
+      <button class="btn btn-outline" onclick="closeExpenseModal()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TICKET DETAIL MODAL ============ -->
+<div class="modal-overlay" id="adminTicketModal">
+  <div class="modal-box" style="max-width:600px">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="adminTicketTitle">تیکت</h3>
+      <button onclick="closeAdminTicketModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6b7280">&times;</button>
+    </div>
+    <div id="adminTicketUser" style="background:#f8f9fb;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.85rem;color:#47536B"></div>
+    <div id="adminTicketMessages" style="max-height:350px;overflow-y:auto;margin-bottom:1rem;padding:.5rem 0"></div>
+    <div id="adminTicketReplyArea">
+      <textarea id="adminTicketReplyInput" rows="2" placeholder="پاسخ خود را بنویسید..." style="width:100%;padding:.65rem 1rem;border:2px solid #e5e7eb;border-radius:10px;font-size:.9rem;font-family:'Vazirmatn',sans-serif;direction:rtl;margin-bottom:.75rem"></textarea>
+      <div style="display:flex;gap:.75rem">
+        <button class="btn btn-primary" onclick="sendAdminTicketReply()"><i class="fa-solid fa-paper-plane"></i> ارسال پاسخ</button>
+        <button class="btn btn-outline" onclick="closeAdminTicket()"><i class="fa-solid fa-check"></i> بستن تیکت</button>
+        <button class="btn btn-outline" onclick="closeAdminTicketModal()">بستن</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://127.0.0.1:5050';
+function absoluteUploadUrl(path){
+  if(!path) return '';
+  return /^https?:\/\//i.test(path) ? path : API_BASE + (path.startsWith('/') ? path : '/' + path);
+}
+let adminToken = localStorage.getItem('admin_token') || '';
+let currentTxnId = null;
+let usersPage = 1, txnsPage = 1, auditPage = 1;
+let otpsPage = 1;
+let notifInterval = null;
+let statDetailData = null;
+
+// ============ AUTH ============
+function apiHeaders() {
+  return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` };
+}
+
+async function apiFetch(url, opts = {}) {
+  opts.headers = { ...apiHeaders(), ...opts.headers };
+  try {
+    const resp = await fetch(`${API_BASE}${url}`, opts);
+    if (resp.status === 401 || resp.status === 403) {
+      adminToken = '';
+      localStorage.removeItem('admin_token');
+      document.getElementById('loginOverlay').classList.remove('hidden');
+      document.getElementById('adminLayout').style.display = 'none';
+      return null;
+    }
+    return await resp.json();
+  } catch (e) {
+    console.error('API error:', e);
+    return null;
+  }
+
+}
+
+// Login
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const errBox = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+
+  if (!username || !password) {
+    errBox.textContent = 'نام کاربری و رمز عبور را وارد کنید';
+    errBox.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> در حال ورود...';
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await resp.json();
+
+    if (data.success) {
+      adminToken = data.token;
+      localStorage.setItem('admin_token', adminToken);
+      localStorage.setItem('admin_info', JSON.stringify(data.admin));
+      enterAdmin(data.admin);
+      showToast('ورود موفقیت‌آمیز بود', 'success');
+    } else {
+      errBox.textContent = data.message || 'خطا در ورود';
+      errBox.classList.add('show');
+    }
+  } catch (e) {
+    errBox.textContent = 'خطا در اتصال به سرور';
+    errBox.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> ورود به پنل مدیریت';
+  }
+});
+
+function enterAdmin(admin) {
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('adminLayout').style.display = 'flex';
+  document.getElementById('adminNameDisplay').textContent = admin.full_name || admin.username;
+  document.getElementById('adminRoleDisplay').textContent = admin.role || 'admin';
+  loadDashboard();
+  pollNotifications();
+  // Start notification polling every 30 seconds
+  if (notifInterval) clearInterval(notifInterval);
+  notifInterval = setInterval(pollNotifications, 30000);
+}
+
+function adminLogout() {
+  adminToken = '';
+  localStorage.removeItem('admin_token');
+  localStorage.removeItem('admin_info');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('adminLayout').style.display = 'none';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+}
+
+// Auto-login if token exists
+(function checkExistingSession() {
+  if (adminToken) {
+    const info = JSON.parse(localStorage.getItem('admin_info') || '{}');
+    enterAdmin(info);
+  }
+})();
+
+// ============ NAVIGATION ============
+function showSection(name) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(`section-${name}`).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'users') loadUsers();
+  else if (name === 'courses') loadCourses();
+  else if (name === 'transactions') loadTransactions();
+  else if (name === 'tickets') loadAdminTickets();
+  else if (name === 'reports') loadReport('daily');
+  else if (name === 'audit') loadAuditLog();
+  else if (name === 'otps') loadOtps();
+}
+
+// ============ DASHBOARD ============
+async function loadDashboard() {
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('fa-IR');
+  const data = await apiFetch('/api/admin/stats');
+  if (data && data.success) {
+    const s = data.stats;
+    document.getElementById('stat-total-users').textContent = s.total_users || 0;
+    document.getElementById('stat-active-users').textContent = s.active_users || 0;
+    document.getElementById('stat-total-courses').textContent = s.total_courses || 0;
+    document.getElementById('stat-pending-txns').textContent = s.pending_transactions || 0;
+    document.getElementById('stat-revenue-month').textContent = formatNumber(s.revenue_month || 0);
+    document.getElementById('stat-revenue-year').textContent = formatNumber(s.revenue_year || 0);
+    document.getElementById('userCountBadge').textContent = s.total_users || 0;
+    document.getElementById('pendingBadge').textContent = s.pending_transactions || 0;
+    document.getElementById('ticketBadge').textContent = 0;
+    // Update detail summaries
+    document.getElementById('stat-detail-users').textContent = `همه ثبت‌نام شده‌ها`;
+    document.getElementById('stat-detail-activeUsers').textContent = `${s.active_users} از ${s.total_users} کاربر`;
+    document.getElementById('stat-detail-courses').textContent = `${s.active_courses || 0} دوره فعال`;
+    document.getElementById('stat-detail-pending').textContent = s.pending_transactions > 0 ? `نیاز به بررسی` : 'ندارد';
+    document.getElementById('stat-detail-revenueMonth').textContent = `${formatNumber(s.revenue_month || 0)} تومان`;
+    document.getElementById('stat-detail-revenueYear').textContent = `${formatNumber(s.revenue_year || 0)} تومان`;
+    statDetailData = null; // reset so details refresh
+    pollNotifications();
+  }
+}
+
+// ============ USERS ============
+let userSearchTimeout;
+document.getElementById('userSearch')?.addEventListener('input', () => {
+  clearTimeout(userSearchTimeout);
+  userSearchTimeout = setTimeout(() => { usersPage = 1; loadUsers(); }, 400);
+});
+document.getElementById('userStatusFilter')?.addEventListener('change', () => { usersPage = 1; loadUsers(); });
+
+async function loadUsers() {
+  const search = document.getElementById('userSearch').value.trim();
+  const status = document.getElementById('userStatusFilter').value;
+  const tbody = document.getElementById('usersTableBody');
+  tbody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</td></tr>';
+
+  const params = new URLSearchParams({ page: usersPage, per_page: 15 });
+  if (search) params.set('search', search);
+  if (status) params.set('status', status);
+
+  const data = await apiFetch(`/api/admin/users?${params}`);
+  if (!data || !data.success) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>خطا در بارگذاری</td></tr>';
+    return;
+  }
+
+  if (data.users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-users-slash"></i>کاربری یافت نشد</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.users.map((u, i) => `
+    <tr>
+      <td class="font-mono text-xs">${(usersPage - 1) * 15 + i + 1}</td>
+      <td style="font-weight:500;">${u.name || 'بدون نام'}</td>
+      <td class="currency" dir="ltr">${u.phone}</td>
+      <td>${u.email || '—'}</td>
+      <td>${u.is_active 
+        ? '<span class="badge badge-success">فعال</span>' 
+        : '<span class="badge badge-danger">غیرفعال</span>'}</td>
+      <td style="font-size:0.8rem; color:#47536B;">${formatDate(u.created_at)}</td>
+      <td style="font-size:0.8rem; color:#47536B;">${u.last_login ? formatDate(u.last_login) : '—'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="openEditUser({id:${u.id},name:'${(u.name||'').replace(/'/g,"\\'")}',phone:'${u.phone}',email:'${u.email||''}'})" title="ویرایش">
+          <i class="fa-solid fa-pen"></i>
+        </button>
+        <button class="btn btn-sm btn-outline" onclick="openSendMessage(${u.id},'${(u.name||'').replace(/'/g,"\\'")}','${u.phone}')" title="ارسال پیام">
+          <i class="fa-solid fa-envelope"></i>
+        </button>
+        <button class="btn btn-sm ${u.is_active ? 'btn-outline' : 'btn-success'}" 
+                onclick="toggleUser(${u.id})" title="${u.is_active ? 'غیرفعال کردن' : 'فعال کردن'}">
+          <i class="fa-solid ${u.is_active ? 'fa-ban' : 'fa-check'}"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteUser(${u.id})" title="حذف">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  renderPagination('usersPagination', data.page, data.pages, (p) => { usersPage = p; loadUsers(); });
+}
+
+async function toggleUser(id) {
+  const data = await apiFetch(`/api/admin/users/${id}/toggle`, { method: 'POST' });
+  if (data && data.success) {
+    showToast(data.message, 'success');
+    loadUsers();
+    loadDashboard();
+  } else {
+    showToast(data?.message || 'خطا', 'error');
+  }
+}
+
+async function deleteUser(id) {
+  if (!confirm('آیا از حذف این کاربر مطمئن هستید؟')) return;
+  const data = await apiFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+  if (data && data.success) {
+    showToast('کاربر حذف شد', 'success');
+    loadUsers();
+    loadDashboard();
+  } else {
+    showToast(data?.message || 'خطا', 'error');
+  }
+}
+
+// ============ COURSES ============
+async function loadCourses() {
+  const tbody = document.getElementById('coursesTableBody');
+  tbody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</td></tr>';
+
+  const data = await apiFetch('/api/admin/courses');
+  if (!data || !data.success) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>خطا در بارگذاری</td></tr>';
+    return;
+  }
+
+  if (data.courses.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-book-open"></i>دوره‌ای ثبت نشده. دوره جدید ایجاد کنید.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.courses.map((c, i) => `
+    <tr>
+      <td class="font-mono text-xs">${i + 1}</td>
+      <td class="font-mono text-xs" dir="ltr">${c.code}</td>
+      <td style="font-weight:500;">${c.title}</td>
+      <td><span class="badge badge-neutral">${c.level}</span></td>
+      <td class="currency" dir="ltr">${formatNumber(c.price)}</td>
+      <td class="font-mono">${c.enrollments_count || 0}</td>
+      <td>${c.is_active 
+        ? '<span class="badge badge-success">فعال</span>'
+        : '<span class="badge badge-danger">غیرفعال</span>'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="editCourse(${c.id})" title="ویرایش">
+          <i class="fa-solid fa-pen"></i>
+        </button>
+        <button class="btn btn-sm ${c.is_active ? 'btn-outline' : 'btn-success'}" 
+                onclick="toggleCourse(${c.id})" title="${c.is_active ? 'غیرفعال' : 'فعال'}">
+          <i class="fa-solid ${c.is_active ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCourse(${c.id})" title="حذف">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openCourseModal(course = null) {
+  document.getElementById('courseModal').classList.add('show');
+  if (course) {
+    document.getElementById('courseModalTitle').textContent = 'ویرایش دوره';
+    document.getElementById('courseEditId').value = course.id;
+    document.getElementById('courseCode').value = course.code;
+    document.getElementById('courseTitle').value = course.title;
+    document.getElementById('courseDesc').value = course.description || '';
+    document.getElementById('courseLevel').value = course.level;
+    document.getElementById('coursePrice').value = course.price || 0;
+    document.getElementById('courseImage').value = course.image_url || '';
+    document.getElementById('courseSpotId').value = course.spotplayer_id || '';
+    document.getElementById('courseCode').disabled = true;
+  } else {
+    document.getElementById('courseModalTitle').textContent = 'افزودن دوره جدید';
+    document.getElementById('courseEditId').value = '';
+    document.getElementById('courseCode').value = '';
+    document.getElementById('courseTitle').value = '';
+    document.getElementById('courseDesc').value = '';
+    document.getElementById('courseLevel').value = 'مقدماتی';
+    document.getElementById('coursePrice').value = '';
+    document.getElementById('courseImage').value = '';
+    document.getElementById('courseSpotId').value = '';
+    document.getElementById('courseCode').disabled = false;
+  }
+}
+
+function closeCourseModal() { document.getElementById('courseModal').classList.remove('show'); }
+
+async function editCourse(id) {
+  const data = await apiFetch('/api/admin/courses');
+  if (data && data.success) {
+    const course = data.courses.find(c => c.id === id);
+    if (course) openCourseModal(course);
+  }
+}
+
+async function saveCourse() {
+  const editId = document.getElementById('courseEditId').value;
+  const payload = {
+    code: document.getElementById('courseCode').value.trim(),
+    title: document.getElementById('courseTitle').value.trim(),
+    description: document.getElementById('courseDesc').value.trim(),
+    level: document.getElementById('courseLevel').value,
+    price: parseInt(document.getElementById('coursePrice').value) || 0,
+    image_url: document.getElementById('courseImage').value.trim(),
+    spotplayer_id: document.getElementById('courseSpotId').value.trim(),
+  };
+
+  if (!payload.code || !payload.title) {
+    showToast('کد و عنوان دوره الزامی است', 'error');
+    return;
+  }
+
+  let data;
+  if (editId) {
+    data = await apiFetch(`/api/admin/courses/${editId}`, { method: 'PUT', body: JSON.stringify(payload) });
+  } else {
+    data = await apiFetch('/api/admin/courses', { method: 'POST', body: JSON.stringify(payload) });
+  }
+
+  if (data && data.success) {
+    showToast(data.message, 'success');
+    closeCourseModal();
+    loadCourses();
+  } else {
+    showToast(data?.message || 'خطا در ذخیره', 'error');
+  }
+}
+
+async function toggleCourse(id) {
+  const data = await apiFetch(`/api/admin/courses/${id}/toggle`, { method: 'POST' });
+  if (data && data.success) {
+    showToast('وضعیت دوره تغییر کرد', 'success');
+    loadCourses();
+  }
+}
+
+async function deleteCourse(id) {
+  if (!confirm('آیا از حذف این دوره مطمئن هستید؟')) return;
+  const data = await apiFetch(`/api/admin/courses/${id}`, { method: 'DELETE' });
+  if (data && data.success) {
+    showToast('دوره حذف شد', 'success');
+    loadCourses();
+  } else {
+    showToast(data?.message || 'خطا', 'error');
+  }
+}
+
+// ============ TRANSACTIONS ============
+document.getElementById('txnStatusFilter')?.addEventListener('change', () => { txnsPage = 1; loadTransactions(); });
+
+async function loadTransactions() {
+  const status = document.getElementById('txnStatusFilter').value;
+  const tbody = document.getElementById('txnsTableBody');
+  tbody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</td></tr>';
+
+  const params = new URLSearchParams({ page: txnsPage, per_page: 15 });
+  if (status) params.set('status', status);
+
+  const data = await apiFetch(`/api/admin/transactions?${params}`);
+  if (!data || !data.success) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>خطا در بارگذاری</td></tr>';
+    return;
+  }
+
+  if (data.transactions.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fa-solid fa-receipt"></i>تراکنشی یافت نشد</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.transactions.map((t, i) => {
+    const statusBadge = {
+      pending: '<span class="badge badge-warning">در انتظار</span>',
+      verified: '<span class="badge badge-success">تأیید شده</span>',
+      rejected: '<span class="badge badge-danger">رد شده</span>',
+    }[t.status] || `<span class="badge badge-neutral">${t.status}</span>`;
+
+    return `
+      <tr>
+        <td class="font-mono text-xs">${(txnsPage - 1) * 15 + i + 1}</td>
+        <td>${t.user_name || '—'} <span style="font-size:0.75rem; color:#9ca3af; display:block;" dir="ltr">${t.user_phone || ''}</span></td>
+        <td style="font-size:0.85rem;">${t.course_title || '—'}</td>
+        <td class="currency" dir="ltr" style="font-weight:600;">${formatNumber(t.amount)} ت</td>
+        <td class="font-mono text-xs">
+          ${t.receipt_number || '—'}
+          ${t.receipt_image ? `<a class="receipt-table-link" href="${absoluteUploadUrl(t.receipt_image)}" target="_blank" rel="noopener"><i class="fa-solid fa-image"></i> تصویر</a>` : ''}
+        </td>
+        <td>${statusBadge}</td>
+        <td style="font-size:0.8rem; color:#47536B;">${formatDate(t.created_at)}</td>
+        <td>
+          ${t.status === 'pending' ? `
+            <button class="btn btn-sm btn-success" onclick="openTxnModal(${t.id})" title="بررسی">
+              <i class="fa-solid fa-check"></i> بررسی
+            </button>
+          ` : `
+            <span style="font-size:0.8rem; color:#9ca3af;">${t.admin_note || '—'}</span>
+          `}
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  renderPagination('txnsPagination', data.page, data.pages, (p) => { txnsPage = p; loadTransactions(); });
+}
+
+async function openTxnModal(id) {
+  currentTxnId = id;
+  const data = await apiFetch(`/api/admin/transactions?per_page=100`);
+  if (data && data.success) {
+    const txn = data.transactions.find(t => t.id === id);
+    if (txn) {
+      document.getElementById('txnModalDetails').innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+          <div><strong>کاربر:</strong> ${txn.user_name || '—'}</div>
+          <div><strong>شماره:</strong> <span dir="ltr">${txn.user_phone}</span></div>
+          <div><strong>دوره:</strong> ${txn.course_title || '—'}</div>
+          <div><strong>مبلغ:</strong> <span dir="ltr">${formatNumber(txn.amount)} تومان</span></div>
+          <div><strong>شماره فیش:</strong> ${txn.receipt_number || '—'}</div>
+          <div><strong>تاریخ:</strong> ${formatDate(txn.created_at)}</div>
+        </div>
+        ${txn.receipt_image ? `
+          <div class="admin-receipt-preview">
+            <strong>تصویر فیش پرداخت</strong>
+            <a href="${absoluteUploadUrl(txn.receipt_image)}" target="_blank" rel="noopener">
+              <img src="${absoluteUploadUrl(txn.receipt_image)}" alt="تصویر فیش پرداخت">
+            </a>
+          </div>
+        ` : ''}
+      `;
+      document.getElementById('txnNote').value = '';
+      document.getElementById('txnModal').classList.add('show');
+    }
+  }
+}
+
+function closeTxnModal() {
+  document.getElementById('txnModal').classList.remove('show');
+  currentTxnId = null;
+}
+
+async function verifyTransaction(action) {
+  if (!currentTxnId) return;
+  const note = document.getElementById('txnNote').value.trim();
+  const licenseKey = document.getElementById('txnLicenseKey').value.trim();
+  const payload = { action, note };
+  if (action === 'verify' && licenseKey) payload.license_key = licenseKey;
+  const data = await apiFetch(`/api/admin/transactions/${currentTxnId}/verify`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+  if (data && data.success) {
+    showToast(data.message, 'success');
+    closeTxnModal();
+    loadTransactions();
+    loadDashboard();
+  } else {
+    showToast(data?.message || 'خطا', 'error');
+  }
+}
+
+function openTxnModal(id) {
+  currentTxnId = id;
+  document.getElementById('txnLicenseKey').value = '';
+  document.getElementById('txnNote').value = '';
+  // Fetch transaction details
+  apiFetch(`/api/admin/transactions?per_page=100`).then(data => {
+    if (data && data.success) {
+      const txn = data.transactions.find(t => t.id === id);
+      if (txn) {
+        document.getElementById('txnModalDetails').innerHTML = `
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+            <div><strong>کاربر:</strong> ${txn.user_name || '—'}</div>
+            <div><strong>شماره:</strong> <span dir="ltr">${txn.user_phone}</span></div>
+            <div><strong>دوره:</strong> ${txn.course_title || '—'}</div>
+            <div><strong>مبلغ:</strong> <span dir="ltr">${formatNumber(txn.amount)} تومان</span></div>
+            <div><strong>شماره فیش:</strong> ${txn.receipt_number || '—'}</div>
+            <div><strong>تاریخ:</strong> ${formatDate(txn.created_at)}</div>
+          </div>
+          ${txn.receipt_image ? `
+            <div class="admin-receipt-preview">
+              <strong>تصویر فیش پرداخت</strong>
+              <a href="${absoluteUploadUrl(txn.receipt_image)}" target="_blank" rel="noopener">
+                <img src="${absoluteUploadUrl(txn.receipt_image)}" alt="تصویر فیش پرداخت">
+              </a>
+            </div>
+          ` : ''}
+        `;
+        document.getElementById('txnModal').classList.add('show');
+      }
+    }
+  });
+}
+
+function closeTxnModal() {
+  document.getElementById('txnModal').classList.remove('show');
+  currentTxnId = null;
+}
+
+// ============ TICKETS ============
+let currentAdminTicketId = null;
+
+async function loadAdminTickets() {
+  const container = document.getElementById('adminTicketsList');
+  container.innerHTML = '<div class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</div>';
+  const status = document.getElementById('ticketStatusFilter')?.value || '';
+  const params = status ? `?status=${status}` : '';
+  const data = await apiFetch(`/api/admin/tickets${params}`);
+  const tickets = data?.tickets || [];
+  if (tickets.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-headset"></i>تیکتی وجود ندارد</div>';
+    document.getElementById('ticketBadge').textContent = '0';
+    return;
+  }
+  document.getElementById('ticketBadge').textContent = tickets.filter(t => t.status === 'open').length;
+  const sm = {open:{l:'باز',b:'badge-warning'},answered:{l:'پاسخ داده شده',b:'badge-info'},closed:{l:'بسته شده',b:'badge-neutral'}};
+  container.innerHTML = tickets.map(t => {
+    const s = sm[t.status] || {l:t.status,b:'badge-neutral'};
+    return `
+      <div style="background:#fff;border-radius:14px;padding:1.25rem;border:1px solid rgba(16,27,51,.08);cursor:pointer;transition:all .2s" onclick="openAdminTicketDetail(${t.id})">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-2 mb-1"><span class="badge ${s.b}">${s.l}</span></div>
+            <p style="font-weight:600">${t.subject}</p>
+            <p style="font-size:.8rem;color:#9ca3af;margin-top:.25rem">${t.user_name || ''} · ${t.user_phone || ''} · ${formatDate(t.updated_at||t.created_at)} · ${t.messages_count} پیام</p>
+          </div>
+          <i class="fa-solid fa-chevron-left" style="color:#d1d5db"></i>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function openAdminTicketDetail(id) {
+  currentAdminTicketId = id;
+  const data = await apiFetch(`/api/admin/tickets/${id}`);
+  if (!data || !data.success) { showToast('خطا', 'error'); return; }
+  document.getElementById('adminTicketTitle').textContent = data.ticket.subject;
+  document.getElementById('adminTicketUser').innerHTML = `<strong>کاربر:</strong> ${data.ticket.user_name || '—'} · <span dir="ltr">${data.ticket.user_phone || ''}</span>`;
+  const msgs = data.messages || [];
+  document.getElementById('adminTicketMessages').innerHTML = msgs.map(m => `
+    <div style="padding:.75rem 1rem;border-radius:12px;margin-bottom:.5rem;max-width:85%;font-size:.9rem;line-height:1.7;${m.sender_type==='admin'?'background:#101B33;color:#fff;border-bottom-right-radius:4px;margin-left:auto':'background:#f3f4f6;color:#101B33;border-bottom-left-radius:4px;margin-right:auto'}">
+      ${m.message}
+      <span style="font-size:.7rem;opacity:.6;margin-top:.25rem;display:block">${m.sender_type==='admin'?'شما':'کاربر'} · ${formatDate(m.created_at)}</span>
+    </div>
+  `).join('');
+  document.getElementById('adminTicketReplyArea').style.display = data.ticket.status === 'closed' ? 'none' : 'block';
+  document.getElementById('adminTicketModal').classList.add('show');
+}
+
+function closeAdminTicketModal() { document.getElementById('adminTicketModal').classList.remove('show'); }
+
+async function sendAdminTicketReply() {
+  if (!currentAdminTicketId) return;
+  const msg = document.getElementById('adminTicketReplyInput').value.trim();
+  if (!msg) { showToast('پیام را وارد کنید', 'error'); return; }
+  const data = await apiFetch(`/api/admin/tickets/${currentAdminTicketId}/reply`, { method: 'POST', body: JSON.stringify({ message: msg }) });
+  if (data && data.success) {
+    document.getElementById('adminTicketReplyInput').value = '';
+    openAdminTicketDetail(currentAdminTicketId);
+    loadAdminTickets();
+  } else { showToast(data?.message || 'خطا', 'error'); }
+}
+
+async function closeAdminTicket() {
+  if (!currentAdminTicketId) return;
+  const data = await apiFetch(`/api/admin/tickets/${currentAdminTicketId}/close`, { method: 'POST' });
+  if (data && data.success) {
+    showToast('تیکت بسته شد', 'success');
+    closeAdminTicketModal();
+    loadAdminTickets();
+  } else {
+    showToast(data?.message || 'بستن تیکت انجام نشد', 'error');
+  }
+}
+
+// ============ REPORTS ============
+function switchReportTab(type) {
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.report-panel').forEach(p => p.style.display = 'none');
+  document.getElementById(`tab-${type}`).classList.add('active');
+  document.getElementById(`report-${type}`).style.display = 'block';
+  loadReport(type);
+}
+
+// Set default dates
+const today = new Date();
+document.getElementById('dailyDate').value = today.toISOString().split('T')[0];
+document.getElementById('monthlyDate').value = today.toISOString().slice(0, 7);
+
+function openExpenseModal() {
+  document.getElementById('expenseTitle').value = '';
+  document.getElementById('expenseCategory').value = '';
+  document.getElementById('expenseAmount').value = '';
+  document.getElementById('expenseNote').value = '';
+  document.getElementById('expenseModal').classList.add('show');
+}
+
+function closeExpenseModal() {
+  document.getElementById('expenseModal').classList.remove('show');
+}
+
+async function saveExpense() {
+  const title = document.getElementById('expenseTitle').value.trim();
+  const category = document.getElementById('expenseCategory').value.trim();
+  const amount = Number(document.getElementById('expenseAmount').value);
+  const note = document.getElementById('expenseNote').value.trim();
+  if (!title || !amount || amount <= 0) {
+    showToast('عنوان و مبلغ معتبر الزامی است', 'error');
+    return;
+  }
+  const data = await apiFetch('/api/admin/expenses', {
+    method: 'POST',
+    body: JSON.stringify({ title, category, amount, note })
+  });
+  if (data && data.success) {
+    closeExpenseModal();
+    showToast('هزینه ثبت شد', 'success');
+    const active = document.querySelector('.tab-btn.active')?.id?.replace('tab-', '') || 'monthly';
+    loadReport(active);
+  } else {
+    showToast(data?.message || 'ثبت هزینه انجام نشد', 'error');
+  }
+}
+
+async function loadReport(type) {
+  let params = `type=${type}`;
+  const contentId = `${type}ReportContent`;
+
+  if (type === 'daily') {
+    const d = document.getElementById('dailyDate').value;
+    if (d) params += `&date=${d}`;
+  } else if (type === 'monthly') {
+    const m = document.getElementById('monthlyDate').value;
+    if (m) params += `&month=${m}`;
+  } else if (type === 'yearly') {
+    const y = document.getElementById('yearlyDate').value;
+    if (y) params += `&year=${y}`;
+  }
+
+  document.getElementById(contentId).innerHTML = '<div class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</div>';
+
+  const data = await apiFetch(`/api/admin/reports?${params}`);
+  if (!data || !data.success) {
+    document.getElementById(contentId).innerHTML = '<div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>خطا در بارگذاری گزارش</div>';
+    return;
+  }
+
+  const r = data.report;
+
+  if (type === 'daily') {
+    document.getElementById(contentId).innerHTML = `
+      <div class="report-card">
+        <h3><i class="fa-solid fa-calendar-day"></i> گزارش روزانه — ${r.date}</h3>
+        <div class="report-grid">
+          <div class="report-item"><div class="r-value">${r.new_users}</div><div class="r-label">کاربر جدید</div></div>
+          <div class="report-item"><div class="r-value">${r.new_enrollments}</div><div class="r-label">ثبت‌نام جدید</div></div>
+          <div class="report-item"><div class="r-value">${r.transactions_count}</div><div class="r-label">تراکنش</div></div>
+          <div class="report-item"><div class="r-value currency">${formatNumber(r.revenue)}</div><div class="r-label">درآمد (تومان)</div></div>
+          <div class="report-item"><div class="r-value">${r.pending_transactions}</div><div class="r-label">در انتظار بررسی</div></div>
+        </div>
+        ${r.course_breakdown && r.course_breakdown.length > 0 ? `
+          <h3 style="margin-top:1.5rem;"><i class="fa-solid fa-book"></i> جزئیات دوره‌ها</h3>
+          <div class="data-table" style="margin-top:0.75rem;">
+            <table>
+              <thead><tr><th>کد</th><th>عنوان</th><th>تعداد ثبت‌نام</th></tr></thead>
+              <tbody>
+                ${r.course_breakdown.map(c => `
+                  <tr><td class="font-mono" dir="ltr">${c.code}</td><td>${c.title}</td><td>${c.count}</td></tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  } else if (type === 'monthly') {
+    document.getElementById(contentId).innerHTML = `
+      <div class="report-card">
+        <h3><i class="fa-solid fa-calendar-week"></i> گزارش ماهانه — ${r.year}/${String(r.month).padStart(2,'0')}</h3>
+        <div class="report-grid">
+          <div class="report-item"><div class="r-value">${r.new_users}</div><div class="r-label">کاربر جدید</div></div>
+          <div class="report-item"><div class="r-value">${r.new_enrollments}</div><div class="r-label">ثبت‌نام جدید</div></div>
+          <div class="report-item"><div class="r-value currency">${formatNumber(r.revenue)}</div><div class="r-label">درآمد (تومان)</div></div>
+          <div class="report-item"><div class="r-value">${r.total_transactions}</div><div class="r-label">کل تراکنش‌ها</div></div>
+          <div class="report-item"><div class="r-value" style="color:#059669;">${r.verified}</div><div class="r-label">تأیید شده</div></div>
+          <div class="report-item"><div class="r-value" style="color:#dc2626;">${r.rejected}</div><div class="r-label">رد شده</div></div>
+          <div class="report-item"><div class="r-value" style="color:#d97706;">${r.pending}</div><div class="r-label">در انتظار</div></div>
+        </div>
+        ${r.daily_breakdown && r.daily_breakdown.length > 0 ? `
+          <h3 style="margin-top:1.5rem;"><i class="fa-solid fa-chart-line"></i> جزئیات روزانه</h3>
+          <div class="data-table" style="margin-top:0.75rem;">
+            <table>
+              <thead><tr><th>تاریخ</th><th>درآمد</th><th>کاربر جدید</th></tr></thead>
+              <tbody>
+                ${r.daily_breakdown.filter(d => d.revenue > 0 || d.new_users > 0).map(d => `
+                  <tr>
+                    <td>${d.date}</td>
+                    <td class="currency">${formatNumber(d.revenue)} تومان</td>
+                    <td>${d.new_users}</td>
+                  </tr>
+                `).join('')}
+                ${r.daily_breakdown.filter(d => d.revenue > 0 || d.new_users > 0).length === 0 
+                  ? '<tr><td colspan="3" class="empty-state">داده‌ای ثبت نشده</td></tr>' : ''}
+              </tbody>
+            </table>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  } else if (type === 'yearly') {
+    const months = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+    document.getElementById(contentId).innerHTML = `
+      <div class="report-card">
+        <h3><i class="fa-solid fa-calendar"></i> گزارش سالانه — ${r.year}</h3>
+        <div class="report-grid">
+          <div class="report-item"><div class="r-value">${r.new_users}</div><div class="r-label">کل کاربران جدید</div></div>
+          <div class="report-item"><div class="r-value currency">${formatNumber(r.revenue)}</div><div class="r-label">کل درآمد (تومان)</div></div>
+          <div class="report-item"><div class="r-value">${r.total_enrollments}</div><div class="r-label">کل ثبت‌نام‌ها</div></div>
+        </div>
+        ${r.monthly_breakdown ? `
+          <h3 style="margin-top:1.5rem;"><i class="fa-solid fa-chart-bar"></i> جزئیات ماهانه</h3>
+          <div class="data-table" style="margin-top:0.75rem;">
+            <table>
+              <thead><tr><th>ماه</th><th>درآمد</th><th>کاربر جدید</th><th>ثبت‌نام</th></tr></thead>
+              <tbody>
+                ${r.monthly_breakdown.filter(m => m.revenue > 0 || m.new_users > 0).map(m => `
+                  <tr>
+                    <td style="font-weight:500;">${months[m.month - 1]} (${m.month})</td>
+                    <td class="currency">${formatNumber(m.revenue)} تومان</td>
+                    <td>${m.new_users}</td>
+                    <td>${m.enrollments}</td>
+                  </tr>
+                `).join('')}
+                ${r.monthly_breakdown.filter(m => m.revenue > 0 || m.new_users > 0).length === 0
+                  ? '<tr><td colspan="4" class="empty-state">داده‌ای ثبت نشده</td></tr>' : ''}
+              </tbody>
+            </table>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  const reportCard = document.querySelector(`#${contentId} .report-card`);
+  if (reportCard) {
+    const financial = document.createElement('div');
+    financial.className = 'report-financial-summary';
+    financial.innerHTML = `
+      <div><span>درآمد تأییدشده</span><strong>${formatNumber(r.revenue || 0)} تومان</strong></div>
+      <div><span>هزینه ثبت‌شده</span><strong class="expense-value">${formatNumber(r.expenses || 0)} تومان</strong></div>
+      <div><span>سود خالص</span><strong class="profit-value">${formatNumber(r.profit || 0)} تومان</strong></div>`;
+    reportCard.insertBefore(financial, reportCard.firstChild.nextSibling);
+  }
+}
+
+// ============ AUDIT LOG ============
+async function loadAuditLog() {
+  const tbody = document.getElementById('auditTableBody');
+  tbody.innerHTML = '<tr><td colspan="7" class="loading"><i class="fa-solid fa-spinner"></i>در حال بارگذاری...</td></tr>';
+
+  const data = await apiFetch(`/api/admin/audit-log?page=${auditPage}&per_page=20`);
+  if (!data || !data.success) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i>خطا</td></tr>';
+    return;
+  }
+
+  if (data.logs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i>لاگی ثبت نشده</td></tr>';
+    return;
+  }
+
+  const actionLabels = {
+    admin_login: 'ورود ادمین', create_course: 'ایجاد دوره', update_course: 'ویرایش دوره',
+    delete_course: 'حذف دوره', toggle_course: 'تغییر وضعیت دوره', activate_user: 'فعال‌سازی کاربر',
+    deactivate_user: 'غیرفعال‌سازی کاربر', delete_user: 'حذف کاربر',
+    verify_transaction: 'تأیید تراکنش', reject_transaction: 'رد تراکنش', delete_transaction: 'حذف تراکنش',
+  };
+
+  tbody.innerHTML = data.logs.map((l, i) => `
+    <tr>
+      <td><input type="checkbox" class="audit-select" value="${l.id}"></td>
+      <td class="font-mono text-xs">${(auditPage - 1) * 20 + i + 1}</td>
+      <td style="font-weight:500;">${actionLabels[l.action] || l.action}</td>
+      <td><span class="badge badge-neutral">${l.target_type}</span></td>
+      <td class="font-mono text-xs">${l.target_id || '—'}</td>
+      <td style="font-size:0.8rem; color:#47536B; max-width:250px; overflow:hidden; text-overflow:ellipsis;">${formatAuditDetails(l.details)}</td>
+      <td class="font-mono text-xs" dir="ltr">${l.ip_address || '—'}</td>
+      <td style="font-size:0.8rem; color:#47536B;">${formatDate(l.created_at)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteAuditLog(${l.id})"><i class="fa-solid fa-trash"></i></button></td>
+    </tr>
+  `).join('');
+
+  renderPagination('auditPagination', data.page, data.pages, (p) => { auditPage = p; loadAuditLog(); });
+}
+
+// ============ HELPERS ============
+function formatNumber(n) {
+  return Number(n).toLocaleString('fa-IR');
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('fa-IR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  } catch { return iso; }
+}
+
+function formatAuditDetails(details) {
+  if (!details) return '—';
+  if (typeof details !== 'object') return String(details);
+  const entries = Object.entries(details);
+  if (entries.length === 0) return '—';
+  return entries.map(([k, v]) => {
+    const val = typeof v === 'boolean' ? (v ? 'بله' : 'خیر') : v;
+    const labels = {
+      is_active: 'فعال', phone: 'تلفن', amount: 'مبلغ', code: 'کد', title: 'عنوان',
+      records_deleted: 'رکوردهای حذف شده', name: 'نام'
+    };
+    return `<span style="color:#47536B">${labels[k] || k}:</span> <span style="font-weight:500">${val}</span>`;
+  }).join(' &nbsp;·&nbsp; ');
+}
+
+// ============ STAT DETAIL EXPAND ============
+async function toggleStatDetail(key) {
+  if (!statDetailData) {
+    // Fetch detailed stats for the first time
+    const [usersData, txnsData] = await Promise.all([
+      apiFetch('/api/admin/users?per_page=100'),
+      apiFetch('/api/admin/transactions?per_page=100')
+    ]);
+    statDetailData = { users: usersData?.users || [], txns: txnsData?.transactions || [] };
+  }
+  const panel = document.getElementById('statDetailPanel');
+  const title = document.getElementById('statDetailTitle');
+  const content = document.getElementById('statDetailContent');
+  const { users, txns } = statDetailData;
+  panel.style.display = 'block';
+
+  const details = {
+    users: { title: 'لیست کاربران', html: users.map(u => `<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(16,27,51,.05)"><span>${u.name || 'بدون نام'}</span><span dir="ltr" style="font-size:.85rem;color:#47536B">${u.phone}</span><span>${u.is_active ? '<span class="badge badge-success">فعال</span>' : '<span class="badge badge-danger">غیرفعال</span>'}</span></div>`).join('') },
+    activeUsers: { title: 'کاربران فعال', html: users.filter(u => u.is_active).map(u => `<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(16,27,51,.05)"><span>${u.name || 'بدون نام'}</span><span dir="ltr" style="font-size:.85rem;color:#47536B">${u.phone}</span></div>`).join('') || '<p style="color:#9ca3af">کاربر فعالی وجود ندارد</p>' },
+    courses: { title: 'دوره‌ها', html: '<p style="color:#9ca3af;font-size:.85rem">برای جزئیات دوره‌ها به بخش «دوره‌ها» مراجعه کنید.</p>' },
+    pending: { title: 'تراکنش‌های در انتظار', html: txns.filter(t => t.status === 'pending').map(t => `<div style="display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(16,27,51,.05)"><span>${t.user_name || '—'}</span><span style="font-weight:600" class="currency" dir="ltr">${formatNumber(t.amount)} ت</span><span style="font-size:.8rem;color:#47536B">${formatDate(t.created_at)}</span></div>`).join('') || '<p style="color:#9ca3af">تراکنش در انتظاری وجود ندارد</p>' },
+    revenueMonth: { title: 'درآمد ماه', html: '<p style="color:#9ca3af;font-size:.85rem">برای جزئیات درآمد به بخش «گزارشات» مراجعه کنید.</p>' },
+    revenueYear: { title: 'درآمد سال', html: '<p style="color:#9ca3af;font-size:.85rem">برای جزئیات درآمد به بخش «گزارشات» مراجعه کنید.</p>' }
+  };
+
+  const d = details[key];
+  if (d) {
+    title.textContent = d.title;
+    content.innerHTML = d.html;
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ============ OTP MANAGEMENT ============
+async function loadOtps() {
+  const tbody = document.getElementById('otpsTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" class="loading">در حال بارگذاری...</td></tr>';
+  const data = await apiFetch(`/api/admin/otps?page=${otpsPage}&per_page=30`);
+  if (!data || !data.success) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">خطا در دریافت OTP ها</td></tr>';
+    return;
+  }
+  if (!data.otps.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">OTP ای ثبت نشده است</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.otps.map((otp, index) => `
+    <tr>
+      <td><input type="checkbox" class="otp-select" value="${otp.id}"></td>
+      <td>${(otpsPage - 1) * 30 + index + 1}</td>
+      <td dir="ltr">${otp.phone}</td>
+      <td dir="ltr"><code>${otp.code || '—'}</code></td>
+      <td>${otp.is_used ? 'استفاده‌شده' : (otp.is_expired ? 'منقضی‌شده' : 'فعال')}</td>
+      <td>${formatDate(otp.created_at)}</td>
+      <td>${formatDate(otp.expires_at)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteOtp(${otp.id})"><i class="fa-solid fa-trash"></i></button></td>
+    </tr>
+  `).join('');
+  renderPagination('otpsPagination', data.page, data.pages, (p) => { otpsPage = p; loadOtps(); });
+}
+
+function toggleAllOtps(checked) {
+  document.querySelectorAll('.otp-select').forEach(item => { item.checked = checked; });
+}
+
+async function deleteOtp(id) {
+  if (!confirm('این OTP حذف شود؟')) return;
+  const data = await apiFetch(`/api/admin/otps/${id}`, { method: 'DELETE' });
+  if (data?.success) { showToast(data.message, 'success'); loadOtps(); }
+  else showToast(data?.message || 'خطا', 'error');
+}
+
+async function deleteSelectedOtps() {
+  const ids = Array.from(document.querySelectorAll('.otp-select:checked')).map(item => item.value);
+  if (!ids.length) return showToast('حداقل یک OTP را انتخاب کنید', 'error');
+  if (!confirm(`${ids.length} OTP حذف شود؟`)) return;
+  const data = await apiFetch('/api/admin/otps', { method: 'DELETE', body: JSON.stringify({ ids }) });
+  if (data?.success) { showToast(data.message, 'success'); loadOtps(); }
+  else showToast(data?.message || 'خطا', 'error');
+}
+
+async function clearOtps() {
+  if (!confirm('تمام OTP ها حذف شوند؟ این عملیات قابل بازگشت نیست.')) return;
+  const data = await apiFetch('/api/admin/otps', { method: 'DELETE', body: JSON.stringify({ all: true }) });
+  if (data?.success) { showToast(data.message, 'success'); loadOtps(); }
+  else showToast(data?.message || 'خطا', 'error');
+}
+
+async function deleteAuditLog(id) {
+  if (!confirm('این لاگ حذف شود؟')) return;
+  const data = await apiFetch(`/api/admin/audit-log/${id}`, { method: 'DELETE' });
+  if (data?.success) { showToast(data.message, 'success'); loadAuditLog(); }
+  else showToast(data?.message || 'خطا', 'error');
+}
+
+async function deleteSelectedAuditLogs() {
+  const ids = Array.from(document.querySelectorAll('.audit-select:checked')).map(item => item.value);
+  if (!ids.length) return showToast('حداقل یک لاگ را انتخاب کنید', 'error');
+  if (!confirm(`حذف ${ids.length} لاگ؟`)) return;
+  const data = await apiFetch('/api/admin/audit-log/bulk', { method: 'DELETE', body: JSON.stringify({ ids }) });
+  if (data?.success) { showToast(data.message, 'success'); loadAuditLog(); }
+  else showToast(data?.message || 'خطا', 'error');
+}
+
+function toggleAllAuditLogs(checked) {
+  document.querySelectorAll('.audit-select').forEach(item => { item.checked = checked; });
+}
+
+// ============ CLEAR AUDIT LOG ============
+async function clearAuditLog() {
+  if (!confirm('آیا از پاک کردن تمام لاگ‌های فعالیت مطمئن هستید؟ این عمل غیرقابل بازگشت است.')) return;
+  const data = await apiFetch('/api/admin/audit-log', { method: 'DELETE' });
+  if (data && data.success) {
+    showToast(data.message, 'success');
+    loadAuditLog();
+  } else {
+    showToast(data?.message || 'خطا', 'error');
+  }
+}
+
+// ============ NOTIFICATION POLLING ============
+async function pollNotifications() {
+  const data = await apiFetch('/api/admin/notifications');
+  if (data && data.success) {
+    const n = data.notifications;
+    const badge = document.getElementById('notifBadge');
+    // Keep the badge visible for every actionable pending item.
+    const total = Math.max(
+      Number(n.total || 0),
+      Number(n.open_tickets || 0),
+      Number(n.new_messages || 0),
+      Number(n.recent_receipts || 0)
+    );
+    if (badge && total > 0) {
+      badge.textContent = total;
+      badge.style.display = 'inline';
+      badge.title = `تیکت باز: ${n.open_tickets || 0} | پیام جدید: ${n.new_messages || 0} | فیش در انتظار: ${n.recent_receipts || 0}`;
+    } else if (badge) {
+      badge.style.display = 'none';
+    }
+    const pendingBadge = document.getElementById('pendingBadge');
+    const ticketBadge = document.getElementById('ticketBadge');
+    if (pendingBadge) pendingBadge.textContent = n.pending_transactions || 0;
+    if (ticketBadge) ticketBadge.textContent = n.open_tickets || 0;
+  }
+}
+
+// ============ EDIT USER ============
+function openEditUser(user) {
+  document.getElementById('editUserId').value = user.id;
+  document.getElementById('editUserName').value = user.name || '';
+  document.getElementById('editUserPhone').value = user.phone || '';
+  document.getElementById('editUserEmail').value = user.email || '';
+  document.getElementById('editUserModal').classList.add('show');
+}
+
+async function saveEditUser() {
+  const id = document.getElementById('editUserId').value;
+  const payload = {
+    name: document.getElementById('editUserName').value.trim(),
+    phone: document.getElementById('editUserPhone').value.trim(),
+    email: document.getElementById('editUserEmail').value.trim(),
+  };
+  if (!payload.name || !payload.phone) {
+    showToast('نام و شماره تلفن الزامی است', 'error');
+    return;
+  }
+  const data = await apiFetch(`/api/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+  if (data && data.success) {
+    showToast(data.message, 'success');
+    document.getElementById('editUserModal').classList.remove('show');
+    loadUsers();
+    loadDashboard();
+  } else {
+    showToast(data?.message || 'خطا', 'error');
+  }
+}
+
+// ============ SEND MESSAGE TO USER ============
+async function openMessageComposer() {
+  const select = document.getElementById('msgUserSelect');
+  const info = document.getElementById('msgUserInfo');
+  select.innerHTML = '<option value="">در حال بارگذاری کاربران...</option>';
+  document.getElementById('msgUserId').value = '';
+  info.textContent = 'یک کاربر را برای ارسال پیام انتخاب کنید.';
+  document.getElementById('msgSubject').value = '';
+  document.getElementById('msgBody').value = '';
+  document.getElementById('sendMessageModal').classList.add('show');
+
+  const data = await apiFetch('/api/admin/users?page=1&per_page=1000');
+  if (!data || !data.success) {
+    select.innerHTML = '<option value="">خطا در بارگذاری کاربران</option>';
+    return;
+  }
+
+  select.innerHTML = '<option value="">انتخاب کاربر...</option>' + data.users.map(u =>
+    `<option value="${u.id}">${u.name || 'بدون نام'} — ${u.phone}${u.email ? ` — ${u.email}` : ''}</option>`
+  ).join('');
+}
+
+function openSendMessage(userId, userName, userPhone) {
+  document.getElementById('msgUserId').value = userId;
+  const select = document.getElementById('msgUserSelect');
+  if (select) select.value = String(userId);
+  document.getElementById('msgUserInfo').innerHTML = `<strong>ارسال پیام به:</strong> ${userName || 'بدون نام'} &nbsp;·&nbsp; <span dir="ltr">${userPhone}</span>`;
+  document.getElementById('msgSubject').value = '';
+  document.getElementById('msgBody').value = '';
+  document.getElementById('sendMessageModal').classList.add('show');
+}
+
+async function sendUserMessage() {
+  const userId = document.getElementById('msgUserId').value;
+  const subject = document.getElementById('msgSubject').value.trim();
+  const message = document.getElementById('msgBody').value.trim();
+  if (!userId) {
+    showToast('ابتدا یک کاربر را انتخاب کنید', 'error');
+    return;
+  }
+  if (!subject || !message) {
+    showToast('موضوع و متن پیام الزامی است', 'error');
+    return;
+  }
+  const data = await apiFetch('/api/admin/messages', { method: 'POST', body: JSON.stringify({ user_id: parseInt(userId), subject, message }) });
+  if (data && data.success) {
+    showToast('پیام ارسال شد', 'success');
+    document.getElementById('sendMessageModal').classList.remove('show');
+  } else {
+    showToast(data?.message || 'خطا', 'error');
+  }
+}
+
+function renderPagination(containerId, current, total, onPage) {
+  const container = document.getElementById(containerId);
+  if (!container || total <= 1) { if (container) container.innerHTML = ''; return; }
+
+  let html = '';
+  if (current > 1) html += `<button onclick="(${onPage.toString()})(${current - 1})">قبلی</button>`;
+  for (let i = Math.max(1, current - 2); i <= Math.min(total, current + 2); i++) {
+    html += `<button class="${i === current ? 'active' : ''}" onclick="(${onPage.toString()})(${i})">${i}</button>`;
+  }
+  if (current < total) html += `<button onclick="(${onPage.toString()})(${current + 1})">بعدی</button>`;
+  container.innerHTML = html;
+}
+
+function showToast(msg, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => {
+    if (e.target === m) m.classList.remove('show');
+  });
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+  }
+});
+</script>
+</body>
+</html>

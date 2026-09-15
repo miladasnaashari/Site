@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>آکادمی دکتر میلاد اثنی عشری</title>
+  
+  <!-- فونت وزیرمتن -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+  <!-- آیکون‌های FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- استایل اختصاصی قالب -->
+  <link rel="stylesheet" href="style.css?v=20260902">
+</head>
+<body>
+
+  <!-- ==================== هدر ==================== -->
+  <header class="header-container">
+    <div class="logo-box">
+      <img src="12.jpg" alt="لوگو دکتر میلاد اثنی عشری">
+    </div>
+
+    <nav class="nav-menu">
+      <div class="nav-wrapper">
+        <button class="nav-item active">
+          <i class="fa-solid fa-house"></i>
+          <span>خانه</span>
+        </button>
+      </div>
+
+      <div class="nav-wrapper" id="userMenuWrapper">
+        <button class="nav-item" id="userBtn" onclick="document.getElementById('about-section').scrollIntoView({behavior: 'smooth'})">
+          <i class="fa-solid fa-user"></i>
+          <span>درباره من</span>
+        </button>
+        <div class="dropdown-menu">
+          <a href="user_dashboard.html"><i class="fa-solid fa-gauge-high"></i> پنل کاربری</a>
+          <a href="#" id="logoutLink"><i class="fa-solid fa-arrow-right-from-bracket"></i> خروج از حساب</a>
+        </div>
+      </div>
+
+      <div class="nav-wrapper">
+        <button class="nav-item" onclick="document.getElementById('academy-courses').scrollIntoView({behavior: 'smooth'})">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <span>دوره‌ها</span>
+        </button>
+      </div>
+
+      <div class="nav-wrapper">
+        <button class="nav-item" onclick="document.getElementById('articles-section').scrollIntoView({behavior: 'smooth'})">
+          <i class="fa-solid fa-file-lines"></i>
+          <span>مقالات</span>
+        </button>
+      </div>
+
+      <div class="nav-wrapper">
+        <button class="nav-item" onclick="document.getElementById('cv-section').scrollIntoView({behavior: 'smooth'})">
+          <i class="fa-solid fa-award"></i>
+          <span>رزومه</span>
+        </button>
+      </div>
+
+      <div class="nav-wrapper">
+        <button class="nav-item">
+          <i class="fa-solid fa-newspaper"></i>
+          <span>اخبار</span>
+        </button>
+      </div>
+
+      <div class="nav-wrapper">
+        <button
+          class="nav-item"
+          onclick="document.getElementById('contact-section').scrollIntoView({behavior: 'smooth'})"
+        >
+          <i class="fa-solid fa-phone"></i>
+          <span>تماس با ما</span>
+        </button>
+      </div>
+
+      <div class="nav-wrapper">
+        <a href="admin.html" class="nav-item" style="text-decoration:none;">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>مدیریت</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- بخش جستجو و دکمه ورود به حساب کاربری -->
+    <div class="header-actions">
+      <div class="search-container">
+        <input type="text" placeholder="جستجو کنید...">
+        <button class="search-btn" type="button">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+
+      <a href="login.html" class="login-btn" id="loginBtn" title="ورود به حساب کاربری">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        <span>ورود</span>
+      </a>
+      <a href="user_dashboard.html" class="login-btn" id="dashBtn" title="پنل کاربری" style="display:none;">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>پنل من</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="body-wrapper">
+
+    <!-- کارت نقل‌قول (سمت چپ) -->
+    <aside class="quote-card">
+      <div class="quote-card-body">
+        <h3 class="quote-title">Every choice carries an unseen invoice</h3>
+        <span class="quote-subtitle">انتخاب‌های امروز، صورت‌حساب‌های فردای شما هستند!</span>
+
+        <p class="quote-text">
+          <i class="fa-solid fa-quote-right quote-icon"></i>
+          حسابداری صرفاً ثبت ارقام نیست، بلکه مهندسیِ روایتِ وضعیت اقتصادی سازمان برای پشتیبانی از تصمیم‌گیری‌های استراتژیک مدیران است. در نقطه مقابل، حسابرسی با نگاهی مستقل و انتقادی، اعتبار این گزارش‌ها را تضمین کرده و شکافِ احتمالی میان «تصویر ارائه‌شده» و «واقعیت عملیاتی» را به حداقل می‌رساند. در نهایت، تعالی سازمانی زمانی محقق می‌شود که حسابداریِ دقیق با نظارت مستمرِ حسابرسی ترکیب شود تا زیرساخت «حکمرانی مالی» (Financial Governance) را برای ایجاد اعتماد پایدار میان ذی‌نفعان بنا کند.
+          <i class="fa-solid fa-quote-left quote-icon"></i>
+        </p>
+        <div class="quote-author">
+          <img src="1.jpg" alt="دکتر میلاد اثنی عشری">
+          <span>دکتر میلاد اثنی عشری</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- درباره من -->
+    <section class="about-section" id="about-section">
+      <div class="panel-header">
+        <h2>درباره من</h2>
+      </div>
+      <div class="about-card">
+        <div class="about-bg-watermark"></div>
+        <div class="about-content">
+          <div class="about-name-tag">
+            <i class="fa-solid fa-user-tie"></i>
+            <span>دکتر میلاد اثنی عشری | مدرس و پژوهشگر ارشد حسابداری و مدیریت مالی</span>
+          </div>
+          <p class="about-text">
+            مدیر مالی و پژوهشگر ارشد حوزه حسابداری با بیش از یک دهه سابقه اجرایی در مدیریت مالی صنایع متنوع و نظام بانکی. دانشجوی دکتری حسابداری، متخصص در طراحی استراتژی‌های مالی، مدیریت پرتفوی، ارزیابی ریسک و حسابرسی داخلی؛ با تمرکز بر پیوند دانش دانشگاهی، تجربه اجرایی و فناوری‌های نوین مالی.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- نقل قول کلیدی -->
+    <section class="quote-highlight-section" aria-label="دیدگاه حسابداری">
+      <h2>Every choice carries an unseen invoice</h2>
+      <p>هر تصمیم مالی، اثری پنهان بر آینده سازمان و مسیر حرفه‌ای شما دارد.</p>
+    </section>
+
+    <!-- پنل دوره‌های آکادمی -->
+    <section class="academy-panel" id="academy-courses">
+      <div class="panel-header">
+        <h2>دوره‌های آکادمی</h2>
+      </div>
+
+      <div class="panel-content">
+        <!-- بولت‌های اسلایدر -->
+        <div class="slider-bullets" id="sliderBullets">
+          <span class="slider-bullet active" data-index="0"></span>
+          <span class="slider-bullet" data-index="1"></span>
+          <span class="slider-bullet" data-index="2"></span>
+        </div>
+
+        <!-- پوستر دوره -->
+        <div class="course-poster-box">
+          <img id="courseImg" src="poster1.png" alt="پوستر دوره">
+        </div>
+
+        <!-- مشخصات دوره -->
+        <div class="course-details">
+          <span class="course-category">رویدادها</span>
+          <h1 class="course-title" id="courseTitle">دوره جامع استانداردهای بین‌المللی حسابداری</h1>
+          <p class="course-description" id="courseDesc">
+            بررسی جامع و کاربردی جدیدترین استانداردهای حسابداری مالی و گزارشگری با رویکرد ورود به بازار کار حرفه‌ای و ارتقای مهارت‌های تحلیلگری سازمانی توسط آکادمی منتشر شد.
+          </p>
+          <button class="btn-more" type="button">
+            ادامه مطلب <i class="fa-solid fa-arrow-left"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== اخبار حسابداری ==================== -->
+  <section class="news-section" id="news-section">
+    <div class="panel-header">
+      <div>
+        <span class="section-kicker"><i class="fa-solid fa-signal"></i> تازه‌های حرفه</span>
+        <h2>آخرین اخبار حسابداری</h2>
+      </div>
+      <a class="news-source-link" href="https://www.accpress.com/news/" target="_blank" rel="noopener">مشاهده accpress <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+    </div>
+    <div class="news-slider" id="newsSlider">
+      <button class="news-control news-prev" type="button" aria-label="خبر قبلی"><i class="fa-solid fa-chevron-right"></i></button>
+      <div class="news-track" id="newsTrack"></div>
+      <button class="news-control news-next" type="button" aria-label="خبر بعدی"><i class="fa-solid fa-chevron-left"></i></button>
+    </div>
+    <div class="news-dots" id="newsDots"></div>
+  </section>
+
+  <!-- ==================== سکشن مقالات کرکره‌ای ==================== -->
+  <section class="articles-section" id="articles-section">
+    <div class="panel-header">
+      <h2>مقالات و پژوهش‌ها</h2>
+    </div>
+
+    <div class="shutter-container" id="shutterContainer">
+      <article class="shutter-blade active"><div class="blade-spine"><span class="blade-num">۰۱</span><span class="blade-vertical-title">حساسیت بازدهی سهام</span><i class="fa-solid fa-chevron-left"></i></div><div class="blade-content"><h3 class="art-full-title">بررسی حساسیت بازدهی سهام به نقدشوندگی در بورس اوراق بهادار تهران</h3><p class="art-authors"><i class="fa-solid fa-users"></i> میلاد اثنی عشری امیری، میثم نبی پور</p><p class="art-abstract">هدف پژوهش بررسی حساسیت بازدهی سهام به نقدشوندگی سهام در بورس اوراق بهادار تهران است. نتایج نشان داد بین نقدشوندگی بازار سهام و بازدهی سهام رابطه معناداری وجود دارد.</p><a class="art-btn-link" target="_blank"></a></div></article>
+      <article class="shutter-blade"><div class="blade-spine"><span class="blade-num">۰۲</span><span class="blade-vertical-title">رشد و بدهی بلندمدت</span><i class="fa-solid fa-chevron-left"></i></div><div class="blade-content"><h3 class="art-full-title">بررسی ارتباط بین رشد و بدهی بلندمدت در شرکت‌های پذیرفته‌شده در بورس تهران</h3><p class="art-authors"><i class="fa-solid fa-users"></i> میلاد اثنی عشری، محمدمهدی کریم‌نیا</p><p class="art-abstract">این پژوهش ارتباط بین بدهی بلندمدت و رشد شرکت‌ها را در یک دوره پنج‌ساله بررسی می‌کند. نتایج وجود رابطه معنادار بین بدهی بلندمدت و رشد شرکت را نشان می‌دهد.</p><a class="art-btn-link"  target="_blank"></a></div></article>
+      <article class="shutter-blade"><div class="blade-spine"><span class="blade-num">۰۳</span><span class="blade-vertical-title">رهبران مالی و هوش مصنوعی</span><i class="fa-solid fa-chevron-left"></i></div><div class="blade-content"><h3 class="art-full-title">آیا حوزه اختیارات رهبران مالی با وجود هوش مصنوعی همچنان در حال گسترش است؟</h3><p class="art-authors"><i class="fa-solid fa-users"></i> میلاد اثنی عشری</p><p class="art-abstract">ترکیب دانش مالی رهبران با ظرفیت‌های هوش مصنوعی می‌تواند به تصمیم‌گیری هوشمندتر، چابکی سازمانی و خلق مزیت رقابتی پایدار منجر شود.</p><a class="art-btn-link"  target="_blank"></a></div></article>
+      <article class="shutter-blade"><div class="blade-spine"><span class="blade-num">۰۴</span><span class="blade-vertical-title">تشکیل پرتفلیو</span><i class="fa-solid fa-chevron-left"></i></div><div class="blade-content"><h3 class="art-full-title">بهترین استراتژی تشکیل پرتفلیو با استفاده از نسبت‌های مالی</h3><p class="art-authors"><i class="fa-solid fa-users"></i> ابوالقاسم اثنی عشری امیری، محمد محمودی، میلاد اثنی عشری امیری</p><p class="art-abstract">این پژوهش بازده پرتفلیوهای مبتنی بر ارزش افزوده اقتصادی، سود به قیمت و ارزش دفتری به بازار را مقایسه می‌کند.</p><a class="art-btn-link" target="_blank"></a></div></article>
+      <article class="shutter-blade"><div class="blade-spine"><span class="blade-num">۰۵</span><span class="blade-vertical-title">حسابرسی داخلی و راهبری</span><i class="fa-solid fa-chevron-left"></i></div><div class="blade-content"><h3 class="art-full-title">نقش حسابرسی داخلی در ارکان راهبری و کمیته‌های اجرایی</h3><p class="art-authors"><i class="fa-solid fa-users"></i> فرشید خدابنده، میلاد اثنی عشری</p><p class="art-abstract">حضور حسابرسی داخلی در جلسات ارکان راهبری و کمیته‌های اجرایی امکان ارائه چشم‌انداز سازمانی و خدمات اطمینان‌بخشی مستقل را فراهم می‌کند.</p><a class="art-btn-link" target="_blank"></a></div></article>
+      <article class="shutter-blade"><div class="blade-spine"><span class="blade-num">۰۶</span><span class="blade-vertical-title">منشور حسابرسی داخلی</span><i class="fa-solid fa-chevron-left"></i></div><div class="blade-content"><h3 class="art-full-title">منشور حسابرسی داخلی: نقشه‌ای برای موفقیت اطمینان‌بخشی</h3><p class="art-authors"><i class="fa-solid fa-users"></i> میلاد اثنی عشری، فرشید خدابنده</p><p class="art-abstract">منشور حسابرسی داخلی دستورالعمل‌های روشن مدیریت ریسک را به یک چارچوب منسجم برای ارتقای عملکرد تبدیل می‌کند.</p><a class="art-btn-link" target="_blank"></a></div></article>
+      <article class="shutter-blade"><div class="blade-spine"><span class="blade-num">۰۷</span><span class="blade-vertical-title">بلاک‌چین و آینده حسابداری</span><i class="fa-solid fa-chevron-left"></i></div><div class="blade-content"><h3 class="art-full-title">بلاک‌چین و آینده حسابداری</h3><p class="art-authors"><i class="fa-solid fa-users"></i> یاسمن خلیلی، میلاد اثنی عشری امیری، مجاهد رخشان</p><p class="art-abstract">این مقاله ابعاد استفاده از بلاک‌چین، تفاوت آن با بیت‌کوین و ضرورت تدوین مقررات برای استفاده گسترده از این فناوری در حسابداری را بررسی می‌کند.</p><a class="art-btn-link"  target="_blank"></a></div></article>
+    </div>
+  </section>
+
+  <!-- ==================== بخش رزومه علمی ==================== -->
+  <section class="cv-section" id="cv-section">
+    <div class="panel-header">
+      <h2>رزومه علمی و حرفه‌ای</h2>
+    </div>
+    <div class="cv-card">
+      <div class="cv-intro">
+        <span class="cv-kicker"><i class="fa-solid fa-award"></i> مسیر علمی و حرفه‌ای</span>
+        <h3>دکتر میلاد اثنی عشری</h3>
+        <p>پژوهشگر و مدرس حسابداری با تمرکز بر حسابداری مالی، بازار سرمایه، حسابرسی داخلی، مدیریت ریسک و فناوری‌های نوین مالی. نسخه کامل رزومه نیز برای مشاهده و دریافت در دسترس است.</p>
+        <a class="cv-download" href="asset/Cv_Dr_milad.pdf" target="_blank" rel="noopener">
+          <i class="fa-solid fa-file-arrow-down"></i>
+          مشاهده و دریافت رزومه کامل
+        </a>
+      </div>
+      <div class="cv-highlights">
+        <div class="cv-highlight">
+          <i class="fa-solid fa-graduation-cap"></i>
+          <strong>دکتری تخصصی حسابداری</strong>
+          <span>دانشگاه آزاد اسلامی</span>
+        </div>
+        <div class="cv-highlight">
+          <i class="fa-solid fa-book-open-reader"></i>
+          <strong>مدرس و پژوهشگر</strong>
+          <span>حسابداری و مدیریت مالی</span>
+        </div>
+        <div class="cv-highlight">
+          <i class="fa-solid fa-chart-line"></i>
+          <strong>حوزه‌های تخصصی</strong>
+          <span>بازار سرمایه و تحلیل مالی</span>
+        </div>
+        <div class="cv-highlight">
+          <i class="fa-solid fa-shield-halved"></i>
+          <strong>حسابرسی و راهبری</strong>
+          <span>ریسک و کنترل‌های داخلی</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== فوتر ==================== -->
+  <footer class="site-footer" id="contact-section">
+    <div class="footer-content">
+
+      <!-- معرفی آکادمی -->
+      <div class="footer-brand">
+        <img
+          src="12.jpg"
+          class="footer-logo"
+          alt="لوگوی آکادمی دکتر میلاد اثنی عشری"
+        >
+
+        <div class="footer-brand-text">
+          <h3>آکادمی دکتر میلاد اثنی عشری</h3>
+          <p>
+            بستری تخصصی برای آموزش حسابداری، حسابرسی، مدیریت مالی و تحلیل بازار
+            سرمایه با رویکردی علمی، کاربردی و متناسب با نیازهای حرفه‌ای امروز.
+          </p>
+        </div>
+      </div>
+
+      <!-- دسترسی سریع -->
+      <div class="footer-column">
+        <h4>دسترسی سریع</h4>
+
+        <ul class="footer-links">
+          <li>
+            <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">
+              <i class="fa-solid fa-house"></i>
+              خانه
+            </a>
+          </li>
+
+          <li>
+            <a href="#about-section">
+              <i class="fa-solid fa-user-tie"></i>
+              درباره من
+            </a>
+          </li>
+
+          <li>
+            <a href="#academy-courses">
+              <i class="fa-solid fa-graduation-cap"></i>
+              دوره‌های آکادمی
+            </a>
+          </li>
+
+          <li>
+            <a href="#articles-section">
+              <i class="fa-solid fa-file-lines"></i>
+              مقالات و پژوهش‌ها
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- راه‌های ارتباطی -->
+      <div class="footer-column">
+        <h4>ارتباط با آکادمی</h4>
+
+        <div class="footer-contact">
+          <a href="tel:+989123456789">
+            <i class="fa-solid fa-phone"></i>
+            ۰۹۱۲ ۳۴۵ ۶۷۸۹
+          </a>
+
+          <a href="mailto:info@example.com">
+            <i class="fa-solid fa-envelope"></i>
+            info@example.com
+          </a>
+
+          <span>
+            <i class="fa-solid fa-location-dot"></i>
+            ایران
+          </span>
+        </div>
+
+        <div class="footer-socials">
+          <a href="#" aria-label="اینستاگرام" title="اینستاگرام">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+
+          <a href="#" aria-label="تلگرام" title="تلگرام">
+            <i class="fa-brands fa-telegram"></i>
+          </a>
+
+          <a href="#" aria-label="لینکدین" title="لینکدین">
+            <i class="fa-brands fa-linkedin-in"></i>
+          </a>
+
+          <a href="#" aria-label="واتساپ" title="واتساپ">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>
+        © <span id="currentYear"></span>
+        تمامی حقوق این وب‌سایت متعلق به
+        <strong>آکادمی دکتر میلاد اثنی عشری</strong>
+        است.
+      </p>
+
+      <button
+        class="back-to-top"
+        type="button"
+        aria-label="بازگشت به بالای صفحه"
+        title="بازگشت به بالا"
+        onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+      >
+        <i class="fa-solid fa-arrow-up"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- اسکریپت جاوااسکریپت -->
+  <script src="main.js?v=20260902"></script>
+</body>
+</html>

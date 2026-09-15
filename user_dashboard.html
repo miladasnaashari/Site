@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>پنل یادگیری — آکادمی اثنی‌عشری</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="tailwind-config-fa.js"></script>
+  <link rel="stylesheet" href="style.css?v=20260911">
+</head>
+<body class="dashboard-page bg-fog font-sans text-ink antialiased">
+
+<!-- Login gate (hidden by default, shown by JS if not logged in) -->
+<div class="login-gate hidden" id="loginGate">
+  <div class="login-gate-box">
+    <div style="width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,#101B33,#1a2d4d);color:#A9823D;font-size:1.5rem;display:grid;place-items:center;margin:0 auto 1rem;box-shadow:0 8px 24px rgba(16,27,51,.2);">
+      <i class="fa-solid fa-graduation-cap"></i>
+    </div>
+    <h2>پنل یادگیری</h2>
+    <p>برای مشاهده دوره‌ها وارد شوید</p>
+    <a href="login.html" id="loginGateLink"><i class="fa-solid fa-right-to-bracket"></i> ورود / ثبت‌نام</a>
+  </div>
+</div>
+
+<!-- Main Dashboard -->
+<div class="min-h-screen flex flex-col lg:flex-row" id="dashboardLayout" style="display:none;">
+  <aside class="lg:w-72 text-white p-6 flex flex-col" style="min-height:100vh;position:sticky;top:0;">
+    <div class="flex items-center justify-between">
+      <a href="" class="font-serif text-xl" style="color:white;text-decoration:none;">آکادمی دکتر اثنی عشری</a>
+    </div>
+    <p class="text-xs mt-2" style="color:rgba(255,255,255,.5);">پنل یادگیری</p>
+  <nav class="mt-8 space-y-1 text-sm">
+      <a class="block rounded-xl px-4 py-3 cursor-pointer nav-link" href="policies.html" style="color:rgba(255,255,255,.65)"><i class="fa-solid fa-shield-halved ml-2"></i> قوانین و حریم خصوصی</a>
+      <a class="block rounded-xl px-4 py-3 cursor-pointer nav-link active" onclick="showTab('overview')" id="nav-overview"><i class="fa-solid fa-chart-pie ml-2"></i> نمای کلی</a>
+      <a class="block rounded-xl px-4 py-3 cursor-pointer nav-link" onclick="showTab('courses')" id="nav-courses" style="color:rgba(255,255,255,.65)"><i class="fa-solid fa-book ml-2"></i> دوره‌های من</a>
+      <a class="block rounded-xl px-4 py-3 cursor-pointer nav-link" onclick="showTab('transactions')" id="nav-transactions" style="color:rgba(255,255,255,.65)"><i class="fa-solid fa-receipt ml-2"></i> تراکنش‌ها</a>
+      <a class="block rounded-xl px-4 py-3 cursor-pointer nav-link" onclick="showTab('tickets')" id="nav-tickets" style="color:rgba(255,255,255,.65)"><i class="fa-solid fa-headset ml-2"></i> پشتیبانی <span class="badge support-unread-badge" id="supportUnreadBadge">0</span></a>
+      <a class="block rounded-xl px-4 py-3 cursor-pointer nav-link" onclick="showTab('profile')" id="nav-profile" style="color:rgba(255,255,255,.65)"><i class="fa-solid fa-user ml-2"></i> پروفایل</a>
+      <a class="block rounded-xl px-4 py-3 cursor-pointer" href="homepage_fa.html" style="color:rgba(255,255,255,.45)"><i class="fa-solid fa-home ml-2"></i> صفحه اصلی</a>
+    </nav>
+    <div class="mt-auto pt-8">
+      <div id="sidebarUser" style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:1rem;"></div>
+      <button onclick="userLogout()" style="width:100%;padding:.6rem;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);cursor:pointer;font-family:'Vazirmatn',sans-serif;font-size:.85rem;transition:all .2s" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+        <i class="fa-solid fa-right-from-bracket"></i> خروج
+      </button>
+    </div>
+  </aside>
+
+  <main class="flex-1 p-6 sm:p-10" style="max-width:900px;">
+    <div class="flex flex-wrap justify-between gap-4 items-end mb-8">
+      <div>
+        <p class="text-xs font-mono mb-1" style="color:#A9823D;">DASHBOARD / <span id="currentYear"></span></p>
+        <h1 class="text-2xl font-semibold" id="greetingText">سلام!</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem">
+        <div style="position:relative;cursor:pointer" onclick="showTab('tickets')">
+          <i class="fa-solid fa-bell" style="font-size:1.3rem;color:#101B33"></i>
+          <span id="notifBadge" style="display:none;position:absolute;top:-6px;left:-6px;background:#ef4444;color:#fff;font-size:.65rem;min-width:1.1rem;height:1.1rem;border-radius:50%;font-weight:600;justify-content:center;align-items:center;padding:0 3px">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="tab-content" id="tab-overview">
+      <div class="section-header">
+        <div>
+          <h1>نمای کلی</h1>
+          <p class="subtitle">خلاصه وضعیت حساب کاربری</p>
+        </div>
+      </div>
+      <section class="stats-grid mb-8">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dbeafe; color:#2563eb;"><i class="fa-solid fa-book"></i></div>
+          <div class="stat-label">دوره‌های من</div>
+          <div class="stat-value" id="myCourseCount">۰</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#dcfce7; color:#16a34a;"><i class="fa-solid fa-key"></i></div>
+          <div class="stat-label">لایسنس فعال</div>
+          <div class="stat-value" id="activeLicenseCount">۰</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#0f032f; color:#db2777;"><i class="fa-solid fa-receipt"></i></div>
+          <div class="stat-label">تراکنش‌ها</div>
+          <div class="stat-value" id="txnCount">۰</div>
+        </div>
+      </section>
+      <section>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">دوره‌های من</h2>
+          <a class="text-sm cursor-pointer" style="color:#A9823D" onclick="showTab('courses')">مشاهده همه ←</a>
+        </div>
+        <div id="overviewCourses" class="space-y-4"><div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div></div>
+      </section>
+      <section class="mt-10">
+        <h2 class="text-xl font-semibold mb-4">دوره‌های موجود</h2>
+        <div id="availableCourses" class="space-y-4"><div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div></div>
+      </section>
+    </div>
+
+    <!-- MY COURSES -->
+    <div class="tab-content" id="tab-courses" style="display:none">
+      <h2 class="text-xl font-semibold mb-2">دوره‌های من</h2>
+      <p style="font-size:.85rem;color:#47536B;margin-bottom:1rem">دوره‌هایی که در آنها ثبت‌نام کرده‌اید — کلید لایسنس اسپات‌پلیر را دریافت کنید</p>
+      <div id="myCoursesList" class="space-y-4 mb-10"><div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div></div>
+      <div style="border-top:2px solid rgba(16,27,51,.08);padding-top:1.5rem;">
+        <div class="flex items-center gap-3 mb-4">
+          <h2 class="text-xl font-semibold">تمام دوره‌ها</h2>
+          <a href="homepage_fa.html" style="font-size:.85rem;color:#A9823D">مشاهده در سایت ←</a>
+        </div>
+        <p style="font-size:.85rem;color:#47536B;margin-bottom:1rem">دوره‌های موجود در آکادمی — ثبت‌نام کنید و منتظر تأیید ادمین باشید</p>
+        <div id="allCoursesList" class="space-y-4"><div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div></div>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="tab-content" id="tab-transactions" style="display:none">
+      <h2 class="text-xl font-semibold mb-4">تراکنش‌ها</h2>
+      <div id="transactionsList" class="space-y-3"><div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div></div>
+    </div>
+
+    <!-- TICKETS -->
+    <div class="tab-content" id="tab-tickets" style="display:none">
+      <div class="section-header">
+        <div>
+          <h1>پشتیبانی و تیکتینگ</h1>
+          <p class="subtitle">ارسال و پیگیری درخواست‌های پشتیبانی</p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="openNewTicketModal()" style="font-size:.85rem"><i class="fa-solid fa-plus"></i> تیکت جدید</button>
+      </div>
+      <div id="ticketsList" class="space-y-3"><div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div></div>
+      <div class="support-direct-messages">
+        <div class="section-header" style="margin-bottom:1rem">
+          <div>
+            <h3 style="font-size:1.1rem;font-weight:700">پیام‌های مدیریت</h3>
+            <p style="font-size:.8rem;color:#64748b;margin-top:.15rem">پیام‌های مستقیم از طرف مدیریت</p>
+          </div>
+        </div>
+        <div id="messagesList" class="space-y-3"><div class="loading">در حال بارگذاری...</div></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="tab-content" id="tab-profile" style="display:none">
+      <h2 class="text-xl font-semibold mb-4">پروفایل من</h2>
+      <div class="bg-white rounded-2xl p-6 border" style="border-color:rgba(16,27,51,.08)">
+        <div class="grid sm:grid-cols-2 gap-4 mb-6">
+          <div><p style="font-size:.8rem;color:#47536B;margin-bottom:.25rem">نام</p><p style="font-weight:600" id="profileName">—</p></div>
+          <div><p style="font-size:.8rem;color:#47536B;margin-bottom:.25rem">شماره همراه</p><p style="font-weight:600;direction:ltr;display:inline-block" id="profilePhone">—</p></div>
+          <div><p style="font-size:.8rem;color:#47536B;margin-bottom:.25rem">ایمیل</p><p style="font-weight:600" id="profileEmail">—</p></div>
+          <div><p style="font-size:.8rem;color:#47536B;margin-bottom:.25rem">تاریخ عضویت</p><p style="font-weight:600" id="profileJoined">—</p></div>
+        </div>
+        <button class="btn btn-outline" onclick="openProfileModal()"><i class="fa-solid fa-pen"></i> ویرایش پروفایل</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ENROLL MODAL (receipt upload) -->
+<div class="modal-overlay" id="enrollModal">
+  <div class="modal-box">
+    <h3><i class="fa-solid fa-graduation-cap" style="color:#A9823D"></i> ثبت‌نام در دوره</h3>
+    <div id="enrollCourseInfo" style="margin-bottom:1rem;"></div>
+    <label>شماره فیش / پیگیری انتقال</label>
+    <input type="text" id="enrollReceiptNumber" placeholder="شماره پیگیری را وارد کنید" style="direction:ltr;text-align:left">
+    <label>مبلغ پرداختی (تومان)</label>
+    <input type="number" id="enrollAmount" placeholder="مبلغ" style="direction:ltr;text-align:left" min="0">
+    <label>تصویر فیش پرداخت</label>
+    <div class="file-upload-area" id="enrollFileArea" onclick="document.getElementById('enrollFileInput').click()">
+      <input type="file" id="enrollFileInput" accept="image/*,.pdf" required onclick="event.stopPropagation()" onchange="handleEnrollFile(this)">
+      <div id="enrollFilePlaceholder">
+        <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.5rem;color:#9ca3af;margin-bottom:.5rem;display:block"></i>
+        <p style="font-size:.85rem;color:#47536B">کلیک کنید یا فایل را بکشید</p>
+        <p style="font-size:.75rem;color:#9ca3af;margin-top:.25rem">PNG, JPG, PDF — حداکثر 5 مگابایت</p>
+      </div>
+      <div id="enrollFilePreview" style="display:none"></div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fbbf24;border-radius:10px;padding:.75rem 1rem;margin-top:1rem;margin-bottom:1rem;">
+      <p style="font-size:.85rem;color:#92400e"><i class="fa-solid fa-clock"></i> پس از ثبت فیش، در انتظار تأیید ادمین باشید. لایسنس اسپات‌پلیر پس از تأیید فعال می‌شود.</p>
+    </div>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-primary" id="enrollSubmitBtn" onclick="submitEnroll()"><i class="fa-solid fa-paper-plane"></i> ثبت فیش و ثبت‌نام</button>
+      <button class="btn btn-outline" onclick="closeEnrollModal()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<!-- TICKET DETAIL MODAL -->
+<div class="modal-overlay" id="ticketDetailModal">
+  <div class="modal-box" style="max-width:600px">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="ticketDetailTitle">تیکت</h3>
+      <button onclick="closeTicketDetailModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6b7280">&times;</button>
+    </div>
+    <div id="ticketMessages" style="max-height:400px;overflow-y:auto;margin-bottom:1rem;padding:.5rem 0"></div>
+    <div id="ticketReplyArea">
+      <textarea id="ticketReplyInput" rows="2" placeholder="پیام خود را بنویسید..." style="width:100%;padding:.65rem 1rem;border:2px solid #e5e7eb;border-radius:10px;font-size:.9rem;font-family:'Vazirmatn',sans-serif;direction:rtl;margin-bottom:.75rem"></textarea>
+      <button class="btn btn-primary" onclick="sendTicketReply()"><i class="fa-solid fa-paper-plane"></i> ارسال پاسخ</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW TICKET MODAL -->
+<div class="modal-overlay" id="newTicketModal">
+  <div class="modal-box">
+    <h3>تیکت جدید</h3>
+    <form id="newTicketForm" onsubmit="submitNewTicket(event)">
+      <label>موضوع</label>
+      <input type="text" id="newTicketSubject" placeholder="مثال: سؤال درباره دوره">
+      <label>پیام</label>
+      <textarea id="newTicketMessage" rows="4" placeholder="پیام خود را بنویسید..."></textarea>
+      <div style="display:flex;gap:.75rem">
+      <button type="submit" class="btn btn-primary" id="submitTicketBtn"><i class="fa-solid fa-paper-plane"></i> ارسال تیکت</button>
+      <button type="button" class="btn btn-outline" onclick="closeNewTicketModal()">انصراف</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PROFILE EDIT MODAL -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal-box">
+    <h3>ویرایش پروفایل</h3>
+    <label>نام و نام خانوادگی</label>
+    <input type="text" id="editName" placeholder="نام خود را وارد کنید">
+    <label>ایمیل</label>
+    <input type="email" id="editEmail" placeholder="email@example.com" style="direction:ltr;text-align:left">
+    <label>آدرس</label>
+    <textarea id="editAddress" rows="3" placeholder="آدرس کامل خود را وارد کنید" style="width:100%;padding:.65rem 1rem;border:2px solid #e5e7eb;border-radius:10px;font-size:.9rem;font-family:'Vazirmatn',sans-serif;direction:rtl;resize:vertical"></textarea>
+    <div id="profileError" style="display:none;color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:.6rem .75rem;margin-top:.75rem;font-size:.85rem"></div>
+    <div style="display:flex;gap:.75rem">
+      <button class="btn btn-primary" onclick="saveProfile()"><i class="fa-solid fa-check"></i> ذخیره</button>
+      <button class="btn btn-outline" onclick="closeProfileModal()">انصراف</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://127.0.0.1:5050';
+function absoluteUploadUrl(path){
+  if(!path) return '';
+  return /^https?:\/\//i.test(path) ? path : API_BASE + (path.startsWith('/') ? path : '/' + path);
+}
+let userToken = localStorage.getItem('academy_token') || '';
+let currentUser = null;
+let currentTicketId = null;
+let enrollCourseData = null;
+let enrollFileUrl = '';
+let allCoursesMap = {}; // id -> course data
+let supportNotificationInterval = null;
+
+function apiHeaders(){ return {'Content-Type':'application/json','Authorization':`Bearer ${userToken}`} }
+
+async function apiFetch(url, opts={}){
+  opts.headers = {...apiHeaders(), ...opts.headers};
+  try{
+    const r = await fetch(`${API_BASE}${url}`, opts);
+    if(r.status===401||r.status===403){ userToken=''; localStorage.removeItem('academy_token'); localStorage.removeItem('academy_currentUser'); location.reload(); return null; }
+    return await r.json();
+  }catch(e){ console.error('API error:',e); return null; }
+}
+
+// INIT
+// INIT
+(async function(){
+  const yearEl = document.getElementById('currentYear');
+  if(yearEl) yearEl.textContent = new Date().getFullYear();
+  
+  // خواندن اطلاعات ذخیره‌شده
+  try{ 
+    currentUser = JSON.parse(localStorage.getItem('academy_currentUser') || '{}'); 
+  }catch{ 
+    currentUser = {}; 
+  }
+  
+  if (userToken) {
+    const authenticated = await loadProfile();
+    if (!authenticated) return;
+    enterDashboard(currentUser);
+    await loadDashboard();
+    refreshSupportBadge();
+    updateHeaderNotifBadge();
+    supportNotificationInterval = setInterval(()=>{ refreshSupportBadge(); updateHeaderNotifBadge(); }, 30000);
+  } else {
+    document.getElementById('loginGate').classList.remove('hidden');
+    document.getElementById('dashboardLayout').style.display = 'none';
+  }
+})();
+
+async function loadProfile(){
+  if (!userToken) return false;
+  const d = await apiFetch('/api/user/profile');
+  if(d && d.success && d.user){
+    currentUser = d.user;
+    localStorage.setItem('academy_currentUser', JSON.stringify(currentUser));
+    return true;
+  }
+  return false;
+}
+
+function enterDashboard(user){
+  // مخفی کردن کامل لاگین‌گیت و نمایش داشبورد
+  const gate = document.getElementById('loginGate');
+  const dash = document.getElementById('dashboardLayout');
+  if(gate) gate.classList.add('hidden');
+  if(dash) dash.style.display = 'flex';
+  
+  const name = user.name || user.phone || 'کاربر';
+  const greeting = document.getElementById('greetingText');
+  if(greeting) greeting.textContent = `سلام ${name}! آماده یادگیری هستی؟`;
+  
+  document.getElementById('sidebarUser').textContent = user.phone || '';
+  document.getElementById('profileName').textContent = user.name || '—';
+  document.getElementById('profilePhone').textContent = user.phone || '—';
+  document.getElementById('profileEmail').textContent = user.email || '—';
+  document.getElementById('profileJoined').textContent = formatDate(user.created_at);
+  
+}
+
+
+function userLogout(){ userToken=''; localStorage.removeItem('academy_token'); localStorage.removeItem('academy_currentUser'); location.reload(); }
+
+// TABS
+function showTab(tab){
+  document.querySelectorAll('.tab-content').forEach(t=>t.style.display='none');
+  document.querySelectorAll('.nav-link').forEach(n=>{n.classList.remove('active');n.style.color='rgba(255,255,255,.65)'});
+  document.getElementById(`tab-${tab}`).style.display='block';
+  const nav=document.getElementById(`nav-${tab}`);
+  nav.classList.add('active'); nav.style.color='white';
+  if(tab==='courses') loadMyCourses();
+  if(tab==='transactions') loadMyTransactions();
+  if(tab==='tickets') {
+    loadTickets();
+    loadUserMessages();
+    markSupportNotificationsRead();
+  }
+  if(tab==='overview') loadDashboard();
+}
+
+// DASHBOARD
+async function loadDashboard(){
+  const [coursesData,txnData]=await Promise.all([apiFetch('/api/user/courses'),apiFetch('/api/user/transactions')]);
+  const myCourses=coursesData?.courses||[];
+  const txns=txnData?.transactions||[];
+  document.getElementById('myCourseCount').textContent=toPersian(myCourses.length);
+  document.getElementById('txnCount').textContent=toPersian(txns.length);
+  const activeLicenses=myCourses.filter(c=>c.spotplayer_license_key).length;
+  document.getElementById('activeLicenseCount').textContent=toPersian(activeLicenses);
+
+  if(myCourses.length>0){
+    document.getElementById('overviewCourses').innerHTML=myCourses.slice(0,3).map(c=>courseCardMini(c)).join('');
+  } else {
+    document.getElementById('overviewCourses').innerHTML='<div class="empty-state"><i class="fa-solid fa-book-open"></i>هنوز در دوره‌ای ثبت‌نام نکرده‌اید</div>';
+  }
+
+  const enrolledIds=new Set(myCourses.map(c=>c.id));
+  const allCourses=await apiFetch('/api/courses');
+  const available=(allCourses?.courses||[]).filter(c=>!enrolledIds.has(c.id));
+  if(available.length>0){
+    document.getElementById('availableCourses').innerHTML=available.map(c=>`
+      <div class="c-card">
+        <div class="flex justify-between items-start" style="flex-wrap:wrap;gap:.75rem">
+          <div style="flex:1;min-width:200px">
+            <p class="font-mono text-xs" style="color:#A9823D;direction:ltr;display:inline-block">${c.code}</p>
+            <h3 class="text-lg font-semibold mt-1">${c.title}</h3>
+            <p style="font-size:.85rem;color:#47536B;margin-top:.25rem">${c.description ? c.description.substring(0,120) + (c.description.length > 120 ? '...' : '') : ''}</p>
+            <span class="badge badge-info" style="margin-top:.5rem">${c.level}</span>
+            ${c.price>0?`<p class="currency mt-2" style="font-weight:600;color:#A9823D;font-size:.95rem">${formatNum(c.price)} تومان</p>`:'<span class="badge badge-success mt-2">رایگان</span>'}
+          </div>
+          <button class="btn btn-primary" style="font-size:.85rem;white-space:nowrap" onclick="startEnroll(${c.id})"><i class="fa-solid fa-plus"></i> ثبت‌نام</button>
+        </div>
+      </div>
+    `).join('');
+    available.forEach(c => { allCoursesMap[c.id] = c; });
+  } else {
+    document.getElementById('availableCourses').innerHTML='<div class="empty-state"><i class="fa-solid fa-check-circle"></i>شما در تمام دوره‌ها ثبت‌نام کرده‌اید</div>';
+  }
+}
+
+function courseCardMini(c){
+  const statusMap={pending:'در انتظار تأیید',active:'فعال',completed:'تکمیل شده',disabled:'غیرفعال'};
+  const badgeMap={pending:'badge-warning',active:'badge-success',completed:'badge-success',disabled:'badge-danger'};
+  const hasLicense=!!c.spotplayer_license_key;
+  return `
+    <div class="c-card">
+      <div class="flex justify-between items-start" style="flex-wrap:wrap;gap:.5rem">
+        <div style="flex:1">
+          <div class="flex items-center gap-2 mb-1">
+            <p class="font-mono text-xs" style="color:#A9823D;direction:ltr;display:inline-block">${c.course_code||c.code||''}</p>
+            <span class="badge ${badgeMap[c.enrollment_status]||'badge-info'}">${statusMap[c.enrollment_status]||c.enrollment_status}</span>
+          </div>
+          <h3 class="text-lg font-semibold">${c.course_title||c.title}</h3>
+          ${hasLicense?`
+            <div class="license-box" style="margin-top:.75rem;text-align:right">
+              <p style="font-size:.8rem;color:#166534;font-weight:600"><i class="fa-solid fa-key"></i> کلید لایسنس اسپات‌پلیر</p>
+              <p class="key">${c.spotplayer_license_key}</p>
+              <p style="font-size:.75rem;color:#47536B;margin-top:.5rem">از این کلید برای مشاهده ویدیو در اپلیکیشن یا وبسایت اسپات‌پلیر استفاده کنید.</p>
+            </div>
+          `:c.enrollment_status==='pending'?`
+            <div class="pending-box" style="margin-top:.75rem">
+              <p style="font-size:.85rem;color:#92400e;font-weight:500"><i class="fa-solid fa-hourglass-half"></i> در انتظار تأیید ادمین</p>
+              <p style="font-size:.8rem;color:#92400e;margin-top:.25rem">فیش پرداخت شما ثبت شده است. پس از بررسی توسط مدیر، لایسنس اسپات‌پلیر فعال می‌شود.</p>
+            </div>
+          `:`<p style="font-size:.85rem;color:#47536B;margin-top:.5rem">${c.course_level?'سطح: '+c.level:''}</p>`}
+        </div>
+        ${c.course_price>0?`<p class="currency" style="font-weight:600;color:#A9823D;white-space:nowrap">${formatNum(c.course_price||c.price)} ت</p>`:''}
+      </div>
+    </div>
+  `;
+}
+
+// MY COURSES + ALL COURSES
+async function loadMyCourses(){
+  const myC=document.getElementById('myCoursesList');
+  const allC=document.getElementById('allCoursesList');
+  myC.innerHTML='<div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div>';
+  allC.innerHTML='<div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div>';
+  const [myData,allData]=await Promise.all([apiFetch('/api/user/courses'),apiFetch('/api/courses')]);
+  const myCourses=myData?.courses||[];
+  const allCourses=allData?.courses||[];
+  const enrolledIds=new Set(myCourses.map(c=>c.id));
+
+  if(myCourses.length===0){
+    myC.innerHTML='<div class="empty-state"><i class="fa-solid fa-book-open"></i>هنوز در دوره‌ای ثبت‌نام نکرده‌اید<br><br>از بخش «تمام دوره‌ها» در پایین ثبت‌نام کنید.</div>';
+  } else {
+    myC.innerHTML=myCourses.map(c=>courseCardMini(c)).join('');
+  }
+
+  const available=allCourses.filter(c=>!enrolledIds.has(c.id));
+  if(available.length===0&&allCourses.length===0){
+    allC.innerHTML='<div class="empty-state"><i class="fa-solid fa-book-open"></i>دوره‌ای ثبت نشده</div>';
+  } else if(available.length===0){
+    allC.innerHTML='<div class="empty-state"><i class="fa-solid fa-check-circle"></i>شما در تمام دوره‌ها ثبت‌نام کرده‌اید!</div>';
+  } else {
+    allC.innerHTML=available.map(c=>`
+      <div class="c-card">
+        <div class="flex justify-between items-start" style="flex-wrap:wrap;gap:.75rem">
+          <div style="flex:1;min-width:200px">
+            <div class="flex items-center gap-2 mb-1">
+              <p class="font-mono text-xs" style="color:#A9823D;direction:ltr;display:inline-block">${c.code}</p>
+              <span class="badge badge-info">${c.level}</span>
+            </div>
+            <h3 class="text-lg font-semibold">${c.title}</h3>
+            <p style="font-size:.85rem;color:#47536B;margin-top:.35rem">${c.description ? c.description.substring(0,150) + (c.description.length > 150 ? '...' : '') : ''}</p>
+            <p class="currency mt-2" style="font-weight:600;color:#A9823D;font-size:.95rem">${c.price>0?formatNum(c.price)+' تومان':'رایگان'}</p>
+          </div>
+          <button class="btn btn-primary" style="font-size:.85rem;white-space:nowrap" onclick="startEnroll(${c.id})"><i class="fa-solid fa-plus"></i> ثبت‌نام</button>
+        </div>
+      </div>
+    `).join('');
+    available.forEach(c => { allCoursesMap[c.id] = c; });
+  }
+}
+
+// ENROLL MODAL
+function startEnroll(courseId){
+  const c=allCoursesMap[courseId];
+  if(c) openEnrollModal(c.id, c.title, c.code, c.price||0);
+}
+function openEnrollModal(courseId,title,code,price){
+  enrollCourseData={id:courseId,title,code,price};
+  enrollFileUrl='';
+  document.getElementById('enrollCourseInfo').innerHTML=`
+    <div style="background:#f8f9fb;border-radius:12px;padding:1rem;margin-bottom:.5rem">
+      <p class="font-mono text-xs" style="color:#A9823D;direction:ltr;display:inline-block">${code}</p>
+      <p style="font-weight:600;margin-top:.25rem">${title}</p>
+      ${price>0?`<p class="currency" style="font-weight:600;color:#A9823D;margin-top:.25rem">${formatNum(price)} تومان</p>`:'<span class="badge badge-success">رایگان</span>'}
+    </div>
+  `;
+  document.getElementById('enrollAmount').value=price||'';
+  document.getElementById('enrollReceiptNumber').value='';
+  document.getElementById('enrollFileInput').value='';
+  document.getElementById('enrollFilePlaceholder').style.display='block';
+  document.getElementById('enrollFilePreview').style.display='none';
+  document.getElementById('enrollModal').classList.add('show');
+}
+function closeEnrollModal(){ document.getElementById('enrollModal').classList.remove('show'); }
+
+function handleEnrollFile(input){
+  const file=input.files[0];
+  if(!file) return;
+  if(file.size>5*1024*1024){showToast('حجم فایل بیش از 5 مگابایت است','error');return;}
+  document.getElementById('enrollFilePlaceholder').style.display='none';
+  const preview=document.getElementById('enrollFilePreview');
+  preview.style.display='block';
+  preview.innerHTML=`
+    <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem;background:#f0fdf4;border-radius:8px">
+      <i class="fa-solid fa-file-image" style="color:#059669;font-size:1.2rem"></i>
+      <div style="flex:1"><p style="font-size:.85rem;font-weight:500">${file.name}</p><p style="font-size:.75rem;color:#6b7280">${(file.size/1024).toFixed(0)} KB</p></div>
+      <button onclick="clearEnrollFile()" style="background:none;border:none;color:#dc2626;cursor:pointer"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  `;
+}
+
+function clearEnrollFile(){
+  document.getElementById('enrollFileInput').value='';
+  document.getElementById('enrollFilePlaceholder').style.display='block';
+  document.getElementById('enrollFilePreview').style.display='none';
+  enrollFileUrl='';
+}
+
+async function submitEnroll(){
+  if(!enrollCourseData) return;
+  const receiptNumber=document.getElementById('enrollReceiptNumber').value.trim();
+  const amount=document.getElementById('enrollAmount').value;
+  const fileInput=document.getElementById('enrollFileInput');
+  const btn=document.getElementById('enrollSubmitBtn');
+
+  if(!currentUser?.email?.trim() || !currentUser?.address?.trim()){
+    showToast('ابتدا ایمیل و آدرس خود را تکمیل کنید','error');
+    openProfileModal();
+    showProfileError('برای ثبت فیش، ابتدا ایمیل و آدرس خود را در پروفایل تکمیل کنید.');
+    return;
+  }
+
+  if(!amount||parseInt(amount)<=0){showToast('مبلغ را وارد کنید','error');return;}
+  if(!fileInput.files[0]){
+    showToast('آپلود تصویر فیش پرداخت الزامی است','error');
+    return;
+  }
+
+  btn.disabled=true;
+  btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> در حال ارسال...';
+
+  // Upload file first if selected
+  if(fileInput.files[0]){
+    try{
+      const formData=new FormData();
+      formData.append('file',fileInput.files[0]);
+      const uploadResp=await fetch(`${API_BASE}/api/upload`,{
+        method:'POST',
+        headers:{'Authorization':`Bearer ${userToken}`},
+        body:formData
+      });
+      const uploadData=await uploadResp.json();
+      if(uploadData.success){ enrollFileUrl=uploadData.url; }
+      else{ showToast(uploadData.message||'خطا در آپلود فایل','error'); btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> ثبت فیش و ثبت‌نام'; return; }
+    }catch(e){ showToast('خطا در آپلود فایل','error'); btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> ثبت فیش و ثبت‌نام'; return; }
+  }
+
+  // Submit enrollment
+  const data=await apiFetch('/api/user/enrollments',{
+    method:'POST',
+    body:JSON.stringify({
+      course_id:enrollCourseData.id,
+      amount:parseInt(amount),
+      receipt_number:receiptNumber,
+      receipt_image:enrollFileUrl
+    })
+  });
+
+  btn.disabled=false;
+  btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> ثبت فیش و ثبت‌نام';
+
+  if(data&&data.success){
+    showToast('ثبت‌نام انجام شد! منتظر تأیید ادمین باشید.','success');
+    closeEnrollModal();
+    loadDashboard();
+    loadMyCourses();
+  } else {
+    showToast(data?.message||'خطا','error');
+  }
+}
+
+// TRANSACTIONS
+async function loadMyTransactions(){
+  const c=document.getElementById('transactionsList');
+  c.innerHTML='<div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div>';
+  const data=await apiFetch('/api/user/transactions');
+  const txns=data?.transactions||[];
+  if(txns.length===0){ c.innerHTML='<div class="empty-state"><i class="fa-solid fa-receipt"></i>تراکنشی ثبت نشده</div>'; return; }
+  const sm={pending:{l:'در انتظار بررسی',b:'badge-warning'},verified:{l:'تأیید شده',b:'badge-success'},rejected:{l:'رد شده',b:'badge-danger'}};
+  c.innerHTML=txns.map(t=>{
+    const s=sm[t.status]||{l:t.status,b:'badge-info'};
+    return `
+      <div style="background:#fff;border-radius:14px;padding:1.25rem;border:1px solid rgba(16,27,51,.08)">
+        <div class="flex justify-between items-start" style="flex-wrap:wrap;gap:.5rem">
+          <div>
+            <div class="flex items-center gap-2 mb-1"><span class="badge ${s.b}">${s.l}</span><span style="font-size:.75rem;color:#9ca3af">#${t.id}</span></div>
+            <p style="font-weight:600">${t.course_title||'—'}</p>
+            <p style="font-size:.85rem;color:#47536B;margin-top:.25rem">فیش: <span style="direction:ltr;display:inline-block">${t.receipt_number||'—'}</span></p>
+            ${t.receipt_image ? `
+              <a class="receipt-preview-link" href="${absoluteUploadUrl(t.receipt_image)}" target="_blank" rel="noopener">
+                <img class="receipt-preview-image" src="${absoluteUploadUrl(t.receipt_image)}" alt="تصویر فیش پرداخت">
+                <span><i class="fa-solid fa-eye"></i> مشاهده تصویر فیش</span>
+              </a>
+            ` : '<span class="receipt-missing">تصویر فیش ثبت نشده</span>'}
+          </div>
+          <div style="text-align:left">
+            <p class="currency" style="font-weight:700;font-size:1.1rem;color:#101B33">${formatNum(t.amount)} <span style="font-size:.8rem;font-weight:400;color:#47536B">تومان</span></p>
+            <p style="font-size:.75rem;color:#9ca3af;margin-top:.25rem">${formatDate(t.created_at)}</p>
+          </div>
+        </div>
+        ${t.admin_note?`<p style="margin-top:.75rem;font-size:.85rem;color:#47536B;background:#f8f9fb;padding:.5rem .75rem;border-radius:8px"><i class="fa-solid fa-comment"></i> ${t.admin_note}</p>`:''}
+      </div>`;
+  }).join('');
+  txns.forEach((t, index) => {
+    if(t.status !== 'verified') return;
+    const card = c.children[index];
+    if(!card) return;
+    const receiptBtn = document.createElement('button');
+    receiptBtn.className = 'btn btn-outline transaction-receipt-btn';
+    receiptBtn.innerHTML = '<i class="fa-solid fa-print"></i> دریافت رسید';
+    receiptBtn.onclick = () => printTransactionReceipt(t);
+    card.appendChild(receiptBtn);
+  });
+}
+
+function escapeReceiptText(value){
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+}
+
+function printTransactionReceipt(transaction){
+  const receiptWindow = window.open('', '_blank', 'width=760,height=820');
+  if(!receiptWindow){ showToast('لطفاً اجازه باز شدن پنجره رسید را فعال کنید','error'); return; }
+  const user = currentUser || {};
+  receiptWindow.document.write(`<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>رسید پرداخت</title>
+    <style>body{font-family:Tahoma,Arial,sans-serif;padding:40px;color:#17233d;background:#f5f7fb}main{max-width:650px;margin:auto;background:#fff;padding:32px;border-radius:18px;box-shadow:0 10px 30px #17233d18}h1{margin:0 0 8px;color:#142644}p{margin:8px 0}.head{display:flex;justify-content:space-between;border-bottom:2px solid #c9a35f;padding-bottom:18px;margin-bottom:22px}.row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e7ebf1}.total{font-size:20px;font-weight:bold;color:#1769d2}@media print{body{padding:0;background:#fff}main{box-shadow:none}}</style></head><body><main>
+    <div class="head"><div><h1>رسید پرداخت</h1><p>آکادمی دکتر اثنی‌عشری</p></div><div>شماره تراکنش: ${escapeReceiptText(transaction.id)}</div></div>
+    <div class="row"><span>نام کاربر</span><strong>${escapeReceiptText(user.name || transaction.user_name || '—')}</strong></div>
+    <div class="row"><span>دوره</span><strong>${escapeReceiptText(transaction.course_title || '—')}</strong></div>
+    <div class="row"><span>شماره فیش</span><strong>${escapeReceiptText(transaction.receipt_number || '—')}</strong></div>
+    <div class="row"><span>تاریخ ثبت</span><strong>${escapeReceiptText(formatDate(transaction.created_at))}</strong></div>
+    <div class="row total"><span>مبلغ پرداختی</span><strong>${escapeReceiptText(formatNum(transaction.amount))} تومان</strong></div>
+    <p style="margin-top:24px;color:#64748b">وضعیت: پرداخت تأیید شده</p></main><script>window.onload=()=>window.print()<\/script></body></html>`);
+  receiptWindow.document.close();
+}
+
+// TICKETS
+async function loadTickets(){
+  const c=document.getElementById('ticketsList');
+  c.innerHTML='<div class="loading"><i class="fa-solid fa-spinner"></i> در حال بارگذاری...</div>';
+  const data=await apiFetch('/api/user/tickets');
+  const tickets=data?.tickets||[];
+  if(tickets.length===0){ c.innerHTML='<div class="empty-state"><i class="fa-solid fa-headset"></i>تیکتی ثبت نشده<br><br>برای پشتیبانی تیکت جدید ایجاد کنید.</div>'; return; }
+  const sm={open:{l:'باز',b:'badge-warning'},answered:{l:'پاسخ داده شده',b:'badge-info'},closed:{l:'بسته شده',b:'badge-neutral'}};
+  c.innerHTML=tickets.map(t=>{
+    const s=sm[t.status]||{l:t.status,b:'badge-neutral'};
+    return `
+      <div class="support-ticket-card admin-style-ticket-card" onclick="openTicketDetail(${t.id})">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-2 mb-1"><span class="badge ${s.b}">${s.l}</span></div>
+            <p style="font-weight:600">${t.subject}</p>
+            <p class="support-ticket-meta">${formatDate(t.updated_at||t.created_at)} · ${t.messages_count} پیام</p>
+          </div>
+          <i class="fa-solid fa-chevron-left support-ticket-arrow"></i>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function loadUserMessages(){
+  const container=document.getElementById('messagesList');
+  if(!container || !userToken) return;
+  const data=await apiFetch('/api/user/messages');
+  const messages=data?.messages||[];
+  if(!messages.length){
+    container.innerHTML='<div class="empty-state">پیام مستقیمی از مدیریت ثبت نشده است.</div>';
+    return;
+  }
+  container.innerHTML=messages.map(m=>`
+    <article class="support-message-card ${m.is_read ? '' : 'is-unread'}">
+      <div class="support-message-head">
+        <strong>${m.subject}</strong>
+        <small>${formatDate(m.created_at)}</small>
+      </div>
+      <p>${m.message}</p>
+      ${!m.is_read ? `<button type="button" class="btn btn-outline btn-sm" onclick="readUserMessage(${m.id})">خواندم</button>` : ''}
+    </article>
+  `).join('');
+  refreshSupportBadge();
+}
+
+async function readUserMessage(id){
+  await apiFetch(`/api/user/messages/${id}/read`, {method:'POST'});
+  await loadUserMessages();
+  refreshSupportBadge();
+}
+
+async function refreshSupportBadge(){
+  if(!userToken) return;
+  const data=await apiFetch('/api/user/notifications');
+  const messageData=await apiFetch('/api/user/messages');
+  const ticketUnread=data?.unread_support_count || 0;
+  const directUnread=messageData?.unread_count || 0;
+  const total=ticketUnread + directUnread;
+  const badge=document.getElementById('supportUnreadBadge');
+  if(badge){
+    badge.textContent=toPersian(total);
+    badge.style.display=total ? 'inline-flex' : 'none';
+  }
+  updateHeaderNotifBadge();
+}
+
+async function markSupportNotificationsRead(){
+  if(!userToken) return;
+  await apiFetch('/api/user/notifications/read', {
+    method:'POST',
+    body:JSON.stringify({type:'ticket_reply'})
+  });
+  await apiFetch('/api/user/notifications/read', {
+    method:'POST',
+    body:JSON.stringify({type:'admin_message'})
+  });
+  await apiFetch('/api/user/messages/read', {method:'POST'});
+  refreshSupportBadge();
+}
+
+async function openTicketDetail(id){
+  currentTicketId=id;
+  const data=await apiFetch(`/api/user/tickets/${id}`);
+  if(!data||!data.success){showToast('خطا','error');return;}
+  document.getElementById('ticketDetailTitle').textContent=data.ticket.subject;
+  const msgs=data.messages||[];
+  const closed=data.ticket.status==='closed';
+  document.getElementById('ticketMessages').innerHTML=msgs.map(m=>`
+    <div class="ticket-bubble ${m.sender_type}">
+      ${m.message}
+      <span class="t-time">${m.sender_type==='user'?'شما':'پشتیبانی'} · ${formatDate(m.created_at)}</span>
+    </div>
+  `).join('');
+  document.getElementById('ticketReplyArea').style.display=closed?'none':'block';
+  document.getElementById('ticketDetailModal').classList.add('show');
+}
+function closeTicketDetailModal(){ document.getElementById('ticketDetailModal').classList.remove('show'); }
+
+async function sendTicketReply(){
+  if(!currentTicketId) return;
+  const msg=document.getElementById('ticketReplyInput').value.trim();
+  if(!msg){showToast('پیام را وارد کنید','error');return;}
+  const data=await apiFetch(`/api/user/tickets/${currentTicketId}/reply`,{method:'POST',body:JSON.stringify({message:msg})});
+  if(data&&data.success){
+    document.getElementById('ticketReplyInput').value='';
+    openTicketDetail(currentTicketId);
+    loadTickets();
+  } else { showToast(data?.message||'خطا','error'); }
+}
+
+function openNewTicketModal(){
+  document.getElementById('newTicketSubject').value='';
+  document.getElementById('newTicketMessage').value='';
+  document.getElementById('newTicketModal').classList.add('show');
+}
+function closeNewTicketModal(){ document.getElementById('newTicketModal').classList.remove('show'); }
+
+async function submitNewTicket(event){
+  if(event) event.preventDefault();
+  if(!userToken){
+    showToast('برای ثبت تیکت ابتدا وارد حساب کاربری شوید','error');
+    document.getElementById('loginGate').classList.remove('hidden');
+    document.getElementById('dashboardLayout').style.display='none';
+    return;
+  }
+  const subject=document.getElementById('newTicketSubject').value.trim();
+  const message=document.getElementById('newTicketMessage').value.trim();
+  if(!subject||!message){showToast('موضوع و پیام الزامی است','error');return;}
+  const submitBtn=document.getElementById('submitTicketBtn');
+  submitBtn.disabled=true;
+  submitBtn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> در حال ارسال...';
+  try {
+    const data=await apiFetch('/api/user/tickets',{method:'POST',body:JSON.stringify({subject,message})});
+    if(data&&data.success){
+      showToast('تیکت ایجاد شد','success');
+      closeNewTicketModal();
+      await loadTickets();
+    } else {
+      showToast(data?.message||'ثبت تیکت انجام نشد','error');
+    }
+  } catch(error) {
+    console.error('Create ticket error:', error);
+    showToast('خطا در ارتباط با سرور هنگام ثبت تیکت','error');
+  } finally {
+    submitBtn.disabled=false;
+    submitBtn.innerHTML='<i class="fa-solid fa-paper-plane"></i> ارسال تیکت';
+  }
+}
+
+// PROFILE
+function openProfileModal(){
+  document.getElementById('editName').value=currentUser.name||'';
+  document.getElementById('editEmail').value=currentUser.email||'';
+  document.getElementById('editAddress').value=currentUser.address||'';
+  showProfileError('');
+  document.getElementById('profileModal').classList.add('show');
+}
+function closeProfileModal(){ document.getElementById('profileModal').classList.remove('show'); }
+function showProfileError(message){
+  const el=document.getElementById('profileError');
+  if(!el) return;
+  el.textContent=message||'';
+  el.style.display=message?'block':'none';
+}
+
+async function saveProfile(){
+  const name=document.getElementById('editName').value.trim();
+  const email=document.getElementById('editEmail').value.trim();
+  const address=document.getElementById('editAddress').value.trim();
+  if(!email || !address){
+    showProfileError('وارد کردن ایمیل و آدرس برای ثبت فیش الزامی است.');
+    return;
+  }
+  showProfileError('');
+  const data=await apiFetch('/api/user/update',{method:'PUT',body:JSON.stringify({name,email,address})});
+  if(data&&data.success){
+    currentUser=data.user;
+    localStorage.setItem('academy_currentUser',JSON.stringify(currentUser));
+    enterDashboard(currentUser);
+    closeProfileModal();
+    showToast('پروفایل بروزرسانی شد','success');
+  } else {
+    const message=data?.message||'ذخیره اطلاعات انجام نشد';
+    showProfileError(message);
+    showToast(message,'error');
+  }
+}
+
+// NOTIFICATIONS BADGE IN HEADER
+async function updateHeaderNotifBadge(){
+  if(!userToken) return;
+  const data=await apiFetch('/api/user/notifications');
+  const msgData=await apiFetch('/api/user/messages');
+  const notifUnread=data?.unread_count||0;
+  const msgUnread=msgData?.unread_count||0;
+  const total=notifUnread+msgUnread;
+  const badge=document.getElementById('notifBadge');
+  if(badge){
+    if(total>0){
+      badge.style.display='flex';
+      badge.textContent=toPersian(total);
+    } else {
+      badge.style.display='none';
+    }
+  }
+}
+
+// HELPERS
+function formatNum(n){return Number(n).toLocaleString('fa-IR')}
+function toPersian(n){return String(n).toLocaleString('fa-IR')}
+function formatDate(iso){if(!iso)return'—';try{return new Date(iso).toLocaleDateString('fa-IR',{year:'numeric',month:'2-digit',day:'2-digit'})}catch{return iso}}
+function showToast(msg,type='success'){const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500)}
+
+// Drag and drop
+const fua=document.getElementById('enrollFileArea');
+if(fua){fua.addEventListener('dragover',e=>{e.preventDefault();fua.classList.add('dragover')});fua.addEventListener('dragleave',()=>fua.classList.remove('dragover'));fua.addEventListener('drop',e=>{e.preventDefault();fua.classList.remove('dragover');if(e.dataTransfer.files.length){document.getElementById('enrollFileInput').files=e.dataTransfer.files;handleEnrollFile(document.getElementById('enrollFileInput'));}});}
+
+// Close modals
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')})});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(m=>m.classList.remove('show'))});
+</script>
+</body>
+</html>

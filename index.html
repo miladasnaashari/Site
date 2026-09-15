@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحه ورود</title>
+    <!-- FontAwesome 6.5.2 برای پشتیبانی کامل از تمام آیکون‌ها از جمله X -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0eeec;
+            font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* ---------- لودر اولیه نقطه ای ---------- */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background-color: #f0eeec;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        .loader-dots {
+            display: flex;
+            gap: 12px;
+        }
+        .loader-dots span {
+            width: 12px;
+            height: 12px;
+            background: #2b2b2b;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .loader-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loader-dots span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.4); opacity: 0.3; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* ---------- ساختار اصلی ---------- */
+        .container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* بخش سمت چپ: پرتره */
+        .left-section {
+            flex: 1.1;
+            height: 100vh;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+        }
+        .left-section img {
+            max-height: 98vh;
+            max-width: 100%;
+            object-fit: contain;
+            object-position: left bottom;
+        }
+
+        /* بخش سمت راست: لوگو و کنترل‌ها */
+        .right-section {
+            flex: 1.3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            gap: 32px;
+            z-index: 10;
+        }
+
+        /* کادر خوشنویسی / لوگو */
+        .logo-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 120px;
+            width: 100%;
+        }
+        .logo-box img {
+            max-width: 520px;
+            width: 85%;
+            height: auto;
+            object-fit: contain;
+            clip-path: inset(0 100% 0 0);
+            will-change: clip-path;
+        }
+        .logo-box img.reveal-curtain {
+            animation: openCurtain 1.6s cubic-bezier(0.25, 1, 0.4, 1) forwards;
+        }
+        @keyframes openCurtain {
+            from { clip-path: inset(0 100% 0 0); }
+            to   { clip-path: inset(0 0 0 0); }
+        }
+
+        /* ---------- دکمه ورود تعاملی مدرن ---------- */
+        .btn-wrapper {
+            position: relative;
+        }
+        .login-btn {
+            position: relative;
+            display: inline-block;
+            background: linear-gradient(145deg, #f5f3f1, #e3e0dd);
+            color: #2c2c2c;
+            text-decoration: none;
+            padding: 13px 60px;
+            border-radius: 30px;
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 6px 6px 16px rgba(180, 175, 170, 0.5),
+                        -6px -6px 16px rgba(255, 255, 255, 0.9);
+            transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+            overflow: hidden;
+        }
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transform: skewX(-25deg);
+            transition: 0.6s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 8px 8px 20px rgba(170, 165, 160, 0.6),
+                        -8px -8px 20px rgba(255, 255, 255, 1);
+            color: #000;
+        }
+        .login-btn:hover::after {
+            left: 140%;
+        }
+        .login-btn:active {
+            transform: translateY(1px);
+            box-shadow: inset 3px 3px 6px rgba(180, 175, 170, 0.6),
+                        inset -3px -3px 6px rgba(255, 255, 255, 0.8);
+        }
+
+        /* ---------- بار آیکون‌های شبکه‌های اجتماعی متفاوت و فانتزی ---------- */
+        .social-bar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 10px 18px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.04),
+                        inset 1px 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .social-item {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #f0eeec;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            text-decoration: none;
+            font-size: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 3px 3px 8px rgba(190, 185, 180, 0.6),
+                        -3px -3px 8px rgba(255, 255, 255, 0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* انیمیشن هاور هر آیکون همراه با رنگ برند و درخشش */
+        .social-item:hover {
+            transform: translateY(-6px) scale(1.12);
+            color: #fff;
+        }
+
+        /* رنگ اختصاصی برندها */
+        .social-item.web:hover {
+            background: #2b5876;
+            box-shadow: 0 8px 18px rgba(43, 88, 118, 0.45);
+        }
+        .social-item.x-corp:hover {
+            background: #111111;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+        }
+        .social-item.tg:hover {
+            background: #24A1DE;
+            box-shadow: 0 8px 18px rgba(36, 161, 222, 0.45);
+        }
+        .social-item.wa:hover {
+            background: #25D366;
+            box-shadow: 0 8px 18px rgba(37, 211, 102, 0.45);
+        }
+        .social-item.insta:hover {
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+            box-shadow: 0 8px 18px rgba(214, 36, 159, 0.45);
+        }
+        .social-item.in:hover {
+            background: #0077B5;
+            box-shadow: 0 8px 18px rgba(0, 119, 181, 0.45);
+        }
+
+        /* انیمیشن شناور ملایم برای جذابیت بصری */
+        .social-item:nth-child(even) {
+            animation: softFloat 4s ease-in-out infinite;
+        }
+        .social-item:nth-child(odd) {
+            animation: softFloat 4s ease-in-out infinite 2s;
+        }
+        @keyframes softFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* ریسپانسیو برای تبلت و موبایل */
+        @media (max-width: 820px) {
+            body { overflow-y: auto; }
+            .container {
+                flex-direction: column-reverse;
+                height: auto;
+                min-height: 100vh;
+                justify-content: center;
+                padding: 40px 15px;
+                gap: 25px;
+            }
+            .left-section { height: auto; justify-content: center; }
+            .left-section img { max-height: 40vh; }
+            .social-bar { gap: 10px; padding: 8px 14px; }
+            .social-item { width: 38px; height: 38px; font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- لودر اول صفحه -->
+    <div id="preloader">
+        <div class="loader-dots">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- سمت راست: لوگو، دکمه ورود و آیکون‌ها -->
+        <div class="right-section">
+            
+            <div class="logo-box">
+                <img id="calligraphyLogo" src="12.jpg" alt="لوگو دکتر میلاد">
+            </div>
+
+            <div class="btn-wrapper">
+                <a href="homepage_fa.html" class="login-btn">ورود</a>
+            </div>
+
+            <!-- نوار آیکون‌های مدرن کپسولی با افکت گلس -->
+            <div class="social-bar">
+                <a href="https://dr-milad-accounting.ir" target="_blank" class="social-item web" title="وب‌سایت">
+                    <i class="fa-solid fa-globe"></i>
+                </a>
+                <a href="https://x.com" target="_blank" class="social-item x-corp" title="X (Twitter)">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+                <a href="https://t.me" target="_blank" class="social-item tg" title="تلگرام">
+                    <i class="fa-brands fa-telegram"></i>
+                </a>
+                <a href="https://whatsapp.com" target="_blank" class="social-item wa" title="واتساپ">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                <a href="https://instagram.com" target="_blank" class="social-item insta" title="اینستاگرام">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" class="social-item in" title="لینکدین">
+                    <i class="fa-brands fa-linkedin-in"></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- سمت چپ: تصویر پرتره -->
+        <div class="left-section">
+            <img src="11.jpg" alt="پرتره">
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const preloader = document.getElementById('preloader');
+            const logo = document.getElementById('calligraphyLogo');
+
+            setTimeout(() => {
+                // محو شدن لودر
+                preloader.style.opacity = '0';
+                preloader.style.visibility = 'hidden';
+
+                // اجرای انیمیشن باز شدن کرکره‌ای لوگو
+                setTimeout(() => {
+                    logo.classList.add('reveal-curtain');
+                }, 150);
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
